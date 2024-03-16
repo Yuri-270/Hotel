@@ -2,16 +2,18 @@ from asyncio import run
 import logging
 import sys
 
-from aiogram import Bot, Dispatcher
+from aiogram import Bot, Dispatcher, Router
 import asyncpg
 
-from config import *
 from utils.data_base import DataBase
+from handlers.handler import router
+from config import *
 
 
 async def main():
     bot = Bot(TOKEN_API)
     dp = Dispatcher()
+    dp.include_router(router)
 
     pool = await asyncpg.create_pool(
         host=db_data['host'],
