@@ -29,10 +29,17 @@ class RegistrationHandler(SupportClass):
 
         if user_data is None:
             await message.answer(
-                "Привет 🖐, для початку роботи введи своє ім'я",
+                "Привет 🖐 \nдля початку роботи введи своє ім'я",
                 reply_markup=ReplyKeyboardRemove()
             )
             await state.set_state(RegistrationState.INPUT_FIRST_NAME)
 
         else:  # TODO main menu
             ...
+
+    async def set_first_name(self, message: Message, state: FSMContext):
+        if await self._length_checker(message, 32):
+            await state.update_data(USERNAME=message.text)
+
+            await message.answer("Тепер введіть своє прізвище", reply_markup=ReplyKeyboardRemove())
+            await state.set_state(RegistrationState.INPUT_SECOND_NAME)

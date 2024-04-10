@@ -25,6 +25,8 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
     user_state = await state.get_state()
     match user_state:
         case RegistrationState.INPUT_FIRST_NAME:
-            await handlers.registration_handler_class.set_first_name()
+            await handlers.registration_handler_class.set_first_name(message, state)
+        case RegistrationState.INPUT_SECOND_NAME:
+            ...
         case _:
             await message.answer("Спочатку введіть /start")
