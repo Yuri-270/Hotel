@@ -23,7 +23,7 @@ class RegistrationHandler(SupportClass):
 
         async with pool.acquire() as con:
             user_data = await con.fetchval(
-                "SELECT personal_id FROM personal WHERE personal_id = $1",
+                "SELECT id FROM users WHERE id = $1",
                 message.from_user.id
             )
 

@@ -2,7 +2,7 @@ from asyncio import run
 import logging
 import sys
 
-from aiogram import Bot, Dispatcher, Router
+from aiogram import Bot, Dispatcher
 import asyncpg
 
 from utils.data_base import DataBase

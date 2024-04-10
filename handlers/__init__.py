@@ -6,4 +6,4 @@ __all__ = [
 ]
 
 
-registration_handler_class = RegistrationHandler
+registration_handler_class = RegistrationHandler()
