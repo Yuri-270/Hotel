@@ -6,5 +6,5 @@ db_data = {
     'port': 5432,
     'user': 'postgres',
     'password': '4r3e2w!Q',
-    'database_name': 'Hotel_Kovel_DB'
+    'database_name': 'Hotel_db'
 }
