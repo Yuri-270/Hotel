@@ -8,3 +8,5 @@ __all__ = [
 
 class RegistrationState(StatesGroup):
     INPUT_FIRST_NAME = State()
+    INPUT_SECOND_NAME = State()
+    INPUT_BIRTHDAY = State()

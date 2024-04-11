@@ -1,5 +1,6 @@
 from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
+from aiogram.enums import ParseMode
 
 from handlers.support import SupportClass
 from utils.data_base import DataBase
@@ -29,7 +30,7 @@ class RegistrationHandler(SupportClass):
 
         if user_data is None:
             await message.answer(
-                "Привет 🖐 \nдля початку роботи введи своє ім'я",
+                "Привіт 🖐 \nдля початку роботи введи своє ім'я",
                 reply_markup=ReplyKeyboardRemove()
             )
             await state.set_state(RegistrationState.INPUT_FIRST_NAME)
@@ -39,7 +40,22 @@ class RegistrationHandler(SupportClass):
 
     async def set_first_name(self, message: Message, state: FSMContext):
         if await self._length_checker(message, 32):
-            await state.update_data(USERNAME=message.text)
+            await state.update_data(FIRST_NAME=message.text)
 
-            await message.answer("Тепер введіть своє прізвище", reply_markup=ReplyKeyboardRemove())
+            await message.answer("Введіть своє прізвище", reply_markup=ReplyKeyboardRemove())
             await state.set_state(RegistrationState.INPUT_SECOND_NAME)
+
+    async def set_second_name(self, message: Message, state: FSMContext):
+        if await self._length_checker(message, 32):
+            await state.update_data(SECOND_NAME=message.text)
+
+            await message.answer(
+                "Введіть свою дату народження 📅 \nДата має бути в форматі <i>dd.mm.yyyy</i>",
+                reply_markup=ReplyKeyboardRemove(),
+                parse_mode=ParseMode.HTML
+            )
+            await state.set_state(RegistrationState.INPUT_BIRTHDAY)
+
+    async def set_birthday(self, message: Message, state: FSMContext):
+        if await self._length_checker(message, 10):
+            ...
