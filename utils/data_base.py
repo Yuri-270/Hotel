@@ -86,7 +86,9 @@ class DataBase:
                     second_name VARCHAR(32) NOT NULL,
                     birthday DATE NOT NULL,
                     email VARCHAR(64),
-                    passport_data VARCHAR(64) NOT NULL
+                    user_address VARCHAR(86),
+                    passport_number VARCHAR(32),
+                    passport_valid_until VARCHAR(64)
                 )"""
             )
             await con.fetch(
