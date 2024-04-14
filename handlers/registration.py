@@ -57,5 +57,10 @@ class RegistrationHandler(SupportClass):
             await state.set_state(RegistrationState.INPUT_BIRTHDAY)
 
     async def set_birthday(self, message: Message, state: FSMContext):
-        if await self._length_checker(message, 10):
-            ...
+        data_check_res = await self._data_checker(message, message.text)
+
+        if data_check_res[0]:
+            user_years_is_18 = await self.is_adult(message, data_check_res[1])
+            if user_years_is_18:
+                await state.update_data(BIRTHDAY=message.text)
+                await state.set_state(RegistrationState.INPUT_PASSPORT_DATA)

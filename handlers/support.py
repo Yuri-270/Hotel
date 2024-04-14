@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from aiogram.types import Message
+from aiogram.enums.parse_mode import ParseMode
 
 
 __all__ = [
@@ -23,4 +26,36 @@ class SupportClass:
 
             await message.answer(f"Повідомлення має містити менше {length_of_message} {last_word}")
 
+            return False
+
+    @staticmethod
+    async def _data_checker(message: Message, data_for_checking: str):
+        data_for_checking_arr = [i for i in data_for_checking]
+
+        if len(data_for_checking_arr) >= 5:
+            data_for_checking_arr[2] = '.'
+            data_for_checking_arr[5] = '.'
+
+        data_for_checking = ''
+        for letter in data_for_checking_arr:
+            data_for_checking += letter
+
+        try:
+            return True, datetime.strptime(data_for_checking, "%d.%m.%Y")
+        except ValueError:
+            await message.answer(
+                "Дата не в форматі <i>dd.mm.yyyy</i>",
+                parse_mode=ParseMode.HTML
+            )
+            return False, None
+
+    @staticmethod
+    async def is_adult(message: Message, selected_date):
+        today_date = datetime.today()
+        birth_date_ = today_date - selected_date
+
+        if birth_date_.days // 365.25 >= 18:
+            return True
+        else:
+            await message.answer("Вам немає 18 років")
             return False
