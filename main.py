@@ -7,14 +7,17 @@ import asyncpg
 
 from utils.data_base import DataBase
 from handlers.handler import router
-from config import *
+from config_reader import *
 
 
 async def main():
-    bot = Bot(TOKEN_API)
+    Settings()
+
+    bot = Bot(await Settings.get_bot_token())
     dp = Dispatcher()
     dp.include_router(router)
 
+    db_data: dict = await Settings.get_db_data()
     pool = await asyncpg.create_pool(
         host=db_data['host'],
         port=db_data['port'],
