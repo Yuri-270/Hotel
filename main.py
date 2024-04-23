@@ -19,8 +19,6 @@ Settings()
 
 
 async def main():
-    Settings()
-
     bot = Bot(await Settings.get_bot_token())
     dp = Dispatcher()
     dp.include_router(router)

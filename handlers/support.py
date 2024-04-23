@@ -1,7 +1,12 @@
 from datetime import datetime
+from re import match
 
 from aiogram.types import Message
 from aiogram.enums.parse_mode import ParseMode
+from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton as KeyBut
+from aiogram.fsm.context import FSMContext
+
+from utils.states import MainState
 
 
 __all__ = [
@@ -12,13 +17,30 @@ __all__ = [
 class SupportClass:
 
     def __init__(self):
-        pass
         self._main_kb = ReplyKeyboardMarkup(
             keyboard=[
                 [KeyBut(text='Орендувати кімнату 🏙')],
                 [KeyBut(text='Настройки ⚙️')],
                 [KeyBut(text='Особистий кабінет 💼')]
             ],
+            resize_keyboard=True
+        )
+
+    def _registration_kb(self):
+        self._skip_email = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text='Пропустити ⤴️')]],
+            resize_keyboard=True
+        )
+        self._verification_email_kb1 = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text='Відправити ще раз 🔄'), KeyBut(text="Назад ⬅️")]],
+            resize_keyboard=True
+        )
+        self._verification_email_kb2 = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text="Назад ⬅️")]],
+            resize_keyboard=True
+        )
+        self._to_main_menu_kb = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text="На головне меню ⤴️")]],
             resize_keyboard=True
         )
 
@@ -74,3 +96,8 @@ class SupportClass:
         else:
             await message.answer("Вам немає 18 років")
             return False
+
+    @staticmethod
+    async def is_email(email: str) -> str:
+        pattern = r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$'
+        return match(pattern, email) is not None
