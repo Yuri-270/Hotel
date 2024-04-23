@@ -10,6 +10,14 @@ from handlers.handler import router
 from config_reader import *
 
 
+__all__ = [
+    'Settings'
+]
+
+
+Settings()
+
+
 async def main():
     Settings()
 

@@ -16,9 +16,9 @@ class RegistrationHandler(SupportClass):
 
     def __init__(self):
         super().__init__()
+        self._registration_kb()
 
-    @staticmethod
-    async def command_start(message: Message, state: FSMContext):
+    async def command_start(self, message: Message, state: FSMContext):
         await state.update_data(USER_ID=message.from_user.id)
         pool = await DataBase.get_pool()
 
@@ -36,7 +36,7 @@ class RegistrationHandler(SupportClass):
             await state.set_state(RegistrationState.INPUT_FIRST_NAME)
 
         else:  # TODO main menu
-            ...
+            await self.main_menu(message, state)
 
     async def set_first_name(self, message: Message, state: FSMContext):
         if await self._length_checker(message, 32):
@@ -64,3 +64,15 @@ class RegistrationHandler(SupportClass):
             if user_years_is_18:
                 await state.update_data(BIRTHDAY=message.text)
                 await state.set_state(RegistrationState.INPUT_PASSPORT_DATA)
+
+                state_data = await state.get_data()
+                pool = await DataBase.get_pool()
+                async with pool.acquire() as con:
+                    await con.fetch(
+                        """INSERT INTO users(id, first_name, second_name, birthday)
+                    VALUES ($1, $2, $3, $4)""",
+                        state_data['USER_ID'],
+                        state_data['FIRST_NAME'],
+                        state_data['SECOND_NAME'],
+                        data_check_res[1]
+                    )

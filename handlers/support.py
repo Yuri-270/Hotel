@@ -13,6 +13,21 @@ class SupportClass:
 
     def __init__(self):
         pass
+        self._main_kb = ReplyKeyboardMarkup(
+            keyboard=[
+                [KeyBut(text='Орендувати кімнату 🏙')],
+                [KeyBut(text='Настройки ⚙️')],
+                [KeyBut(text='Особистий кабінет 💼')]
+            ],
+            resize_keyboard=True
+        )
+
+    async def main_menu(self, message: Message, state: FSMContext):
+        await message.answer(
+            "Главное меню 🏢",
+            reply_markup=self._main_kb
+        )
+        await state.set_state(MainState.MAIN_HANDLER)
 
     @staticmethod
     async def _length_checker(message: Message, length_of_message: int) -> bool:
