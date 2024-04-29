@@ -42,9 +42,7 @@ class Settings(BaseModel):
 
     @classmethod
     async def get_gmail_data(cls) -> tuple:
-        """
-        :return tuple[gmail_addr, gmail_key]
-        """
+        """:return tuple[gmail_addr, gmail_key]"""
         gmail_key = cls.__email_key.get_secret_value()  # Get secret key
         gmail_data = (
             cls.__email_addr,

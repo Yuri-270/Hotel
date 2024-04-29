@@ -34,5 +34,7 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.registration_handler_class.set_email(message, state)
         case RegistrationState.VERIFICATION_EMAIL:
             await handlers.registration_handler_class.check_verification_email_key(message, state)
+        case MainState.MAIN_HANDLER:
+            await handlers.registration_handler_class.set_phone_number(message, state)
         case _:
             await message.answer("Спочатку введіть /start")

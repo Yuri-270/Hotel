@@ -127,12 +127,10 @@ class RegistrationHandler(SupportClass):
             is_verified = await VerifyingEmail.check_verifying_key(message, state)
             if is_verified:
                 await message.answer(
-                    """Ваш email верифікований 
-Тепер потрібно ще верифікувати номер телефона
-але це можна зробити потом""",
-                    reply_markup=self._to_main_menu_kb
+                    "Ваш email верифікований",
+                    reply_markup=ReplyKeyboardRemove()
                 )
-                await state.set_state(RegistrationState.INPUT_PHONE_NUMBER)
+                await self.main_menu(message, state)
 
         else:
             await message.answer("Ви ввели не код")

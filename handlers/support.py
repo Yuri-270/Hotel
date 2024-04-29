@@ -33,17 +33,12 @@ class SupportClass:
             keyboard=[[KeyBut(text="Назад ⬅️")]],
             resize_keyboard=True
         )
-        self._to_main_menu_kb = ReplyKeyboardMarkup(
-            keyboard=[[KeyBut(text="На головне меню ⤴️")]],
-            resize_keyboard=True
-        )
 
     @staticmethod
     async def main_menu_kb(user_id: int) -> ReplyKeyboardMarkup:
         buttons = [
             [KeyBut(text='Орендувати кімнату 🏙')],
-            [KeyBut(text='Настройки ⚙️')],
-            [KeyBut(text='Особистий кабінет 💼')]
+            [KeyBut(text='Настройки ⚙️'), KeyBut(text='Особистий кабінет 💼')]
         ]
 
         pool = await DataBase.get_pool()
