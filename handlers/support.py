@@ -7,6 +7,7 @@ from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton as KeyBut
 from aiogram.fsm.context import FSMContext
 
 from utils.states import MainState
+from utils.data_base import DataBase
 
 
 __all__ = [
@@ -17,14 +18,7 @@ __all__ = [
 class SupportClass:
 
     def __init__(self):
-        self._main_kb = ReplyKeyboardMarkup(
-            keyboard=[
-                [KeyBut(text='Орендувати кімнату 🏙')],
-                [KeyBut(text='Настройки ⚙️')],
-                [KeyBut(text='Особистий кабінет 💼')]
-            ],
-            resize_keyboard=True
-        )
+        pass
 
     def _registration_kb(self):
         self._skip_email = ReplyKeyboardMarkup(
@@ -44,10 +38,36 @@ class SupportClass:
             resize_keyboard=True
         )
 
+    @staticmethod
+    async def main_menu_kb(user_id: int) -> ReplyKeyboardMarkup:
+        buttons = [
+            [KeyBut(text='Орендувати кімнату 🏙')],
+            [KeyBut(text='Настройки ⚙️')],
+            [KeyBut(text='Особистий кабінет 💼')]
+        ]
+
+        pool = await DataBase.get_pool()
+        async with pool.acquire() as con:
+            already_used = await con.fetchval("SELECT COUNT(user_id) FROM booking WHERE user_id = $1", user_id)
+
+        if already_used != 0:
+            buttons.insert(1, [KeyBut(text='Переглянути історію')])
+
+        kb = ReplyKeyboardMarkup(
+            keyboard=buttons,
+            resize_keyboard=True
+        )
+
+        return kb
+
     async def main_menu(self, message: Message, state: FSMContext):
+        # Get main kb
+        state_data = await state.get_data()
+        kb = await self.main_menu_kb(state_data['USER_ID'])
+
         await message.answer(
             "Главное меню 🏢",
-            reply_markup=self._main_kb
+            reply_markup=kb
         )
         await state.set_state(MainState.MAIN_HANDLER)
 
