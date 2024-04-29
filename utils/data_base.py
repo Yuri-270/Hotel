@@ -56,7 +56,7 @@ class DataBase:
                     name VARCHAR(64) NOT NULL,
                     num_of_rooms INTEGER NOT NULL,
                     city VARCHAR(32) NOT NULL,
-                    start INTEGER NOT NULL
+                    stars INTEGER NOT NULL
                 )"""
             )
             await con.fetch(
