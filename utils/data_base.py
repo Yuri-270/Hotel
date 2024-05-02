@@ -53,10 +53,10 @@ class DataBase:
             await con.fetch(
                 """CREATE TABLE IF NOT EXISTS hotel (
                     id INTEGER DEFAULT nextval ('hotel_sequence') PRIMARY KEY NOT NULL,
-                    name VARCHAR(64) NOT NULL,
                     num_of_rooms INTEGER NOT NULL,
                     city VARCHAR(32) NOT NULL,
-                    stars INTEGER NOT NULL
+                    stars INTEGER NOT NULL,
+                    address TEXT NOT NULL
                 )"""
             )
             await con.fetch(
@@ -88,7 +88,8 @@ class DataBase:
                     email VARCHAR(64),
                     user_address VARCHAR(86),
                     passport_number VARCHAR(32),
-                    passport_valid_until VARCHAR(64)
+                    passport_valid_until VARCHAR(64),
+                    telephone_number INTEGER
                 )"""
             )
             await con.fetch(

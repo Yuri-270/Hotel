@@ -3,7 +3,8 @@ from aiogram.fsm.state import StatesGroup, State
 
 __all__ = [
     'RegistrationState',
-    'MainState'
+    'MainState',
+    'SelectHotel'
 ]
 
 
@@ -17,3 +18,7 @@ class RegistrationState(StatesGroup):
 
 class MainState(StatesGroup):
     MAIN_HANDLER = State()
+
+
+class SelectHotel(StatesGroup):
+    GET_LOCATION = State()

@@ -1,5 +1,6 @@
 from datetime import datetime
 from re import match
+import requests
 
 from aiogram.types import Message
 from aiogram.enums.parse_mode import ParseMode
@@ -16,6 +17,7 @@ __all__ = [
 
 
 class SupportClass:
+    _geo_ikb: ReplyKeyboardMarkup
 
     def __init__(self):
         pass
@@ -34,6 +36,16 @@ class SupportClass:
             resize_keyboard=True
         )
 
+    def get_filter_kb(self):
+        self._geo_ikb = ReplyKeyboardMarkup(
+            keyboard=[[
+                KeyBut(text="Найти поруч 🗺", request_location=True),
+                KeyBut(text="Вказати потім")
+            ]],
+            input_field_placeholder="Вкажіть місто",
+            resize_keyboard=True
+        )
+
     @staticmethod
     async def main_menu_kb(user_id: int) -> ReplyKeyboardMarkup:
         buttons = [
@@ -46,7 +58,7 @@ class SupportClass:
             already_used = await con.fetchval("SELECT COUNT(user_id) FROM booking WHERE user_id = $1", user_id)
 
         if already_used != 0:
-            buttons.insert(1, [KeyBut(text='Переглянути історію')])
+            buttons.insert(1, [KeyBut(text='Переглянути історію 🗓')])
 
         kb = ReplyKeyboardMarkup(
             keyboard=buttons,
@@ -116,3 +128,19 @@ class SupportClass:
     async def is_email(email: str) -> str:
         pattern = r'^[\w\.-]+@[a-zA-Z\d\.-]+\.[a-zA-Z]{2,}$'
         return match(pattern, email) is not None
+
+    @staticmethod
+    async def get_city_name(latitude: float, longitude: float) -> str:
+        url = f"https://nominatim.openstreetmap.org/reverse?lat={latitude}&lon={longitude}&format=json"
+        response = requests.get(url)
+        data = response.json()
+        city = data.get('address', {}).get('city')
+        if city is None:
+            city = data.get('address', {}).get('town')
+        if city is None:
+            city = data.get('address', {}).get('village')
+        if city is None:
+            city = data.get('address', {}).get('hamlet')
+        if city is None:
+            city = data.get('address', {}).get('locality')
+        return city
