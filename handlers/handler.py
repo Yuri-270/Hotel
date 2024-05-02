@@ -1,5 +1,5 @@
 from aiogram import Router, Bot
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters.command import CommandStart
 
@@ -42,3 +42,12 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.registration_handler_class.set_telephone_number(message, state)
         case _:
             await message.answer("Спочатку введіть /start")
+
+
+@router.callback_query()
+async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
+    await call.answer()
+    user_state = await state.get_data()
+    match user_state:
+        case RegistrationState.CONFIRM_THE_TRANSFER_PASSPORT_DATA:
+            await handlers.registration_handler_class.input_passport_number(call, state)

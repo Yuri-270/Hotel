@@ -1,4 +1,4 @@
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 
@@ -99,7 +99,7 @@ class RegistrationHandler(SupportClass):
                 await VerifyingEmail.send_message(message, state)
                 await message.answer(
                     f"Вам на {message.text} має прийти код для верифікації \nВведіть його в поле нижче",
-                    reply_markup=self._verification_email_kb1
+                    reply_markup=self._verification_email_kb
                 )
                 await state.set_state(RegistrationState.VERIFICATION_EMAIL)
 
@@ -111,7 +111,7 @@ class RegistrationHandler(SupportClass):
             await VerifyingEmail.send_message(message, state)
             await message.answer(
                 f"Вам на {message.text} має прийти код для верифікації \nВведіть його в поле нижче",
-                reply_markup=self._verification_email_kb2
+                reply_markup=self._back_kb
             )
             await state.set_state(RegistrationState.VERIFICATION_EMAIL)
 
@@ -164,3 +164,23 @@ class RegistrationHandler(SupportClass):
                     "Номер телефона добавлений, тепер потрібно добавити дані паспорта",
                     reply_markup=ReplyKeyboardRemove()
                 )
+                await message.answer(
+                    "Ви дозволяєте обробку своїх данних",
+                    reply_markup=self._confirm_data_ikb
+                )
+                await state.set_state(RegistrationState.CONFIRM_THE_TRANSFER_PASSPORT_DATA)
+
+    async def input_passport_number(self, call: CallbackQuery, state: FSMContext):
+        if call.data == 'no':
+            await call.message.answer(
+                "Ви можете потом ввести дані паспорта \nале пока ви не можете орендувати кімнати",
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await self.main_menu(call.message, state)
+
+        elif call.data == 'yes':
+            await call.message.answer(
+                "Введіть номер паспорта",
+                reply_markup=self._back_kb
+            )
+            await state.set_state(RegistrationState.INPUT_PASSPORT_NUMBER)

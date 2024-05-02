@@ -5,6 +5,7 @@ import requests
 from aiogram.types import Message
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton as KeyBut
+from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardButton as InBut
 from aiogram.fsm.context import FSMContext
 
 from utils.states import MainState
@@ -28,11 +29,11 @@ class SupportClass:
             input_field_placeholder="name123@email.com",
             resize_keyboard=True
         )
-        self._verification_email_kb1 = ReplyKeyboardMarkup(
+        self._verification_email_kb = ReplyKeyboardMarkup(
             keyboard=[[KeyBut(text='Відправити ще раз 🔄'), KeyBut(text="Назад ⬅️")]],
             resize_keyboard=True
         )
-        self._verification_email_kb2 = ReplyKeyboardMarkup(
+        self._back_kb = ReplyKeyboardMarkup(
             keyboard=[[KeyBut(text="Назад ⬅️")]],
             resize_keyboard=True
         )
@@ -40,6 +41,12 @@ class SupportClass:
             keyboard=[[KeyBut(text='Пропустити ⤴️')]],
             input_field_placeholder="+380",
             resize_keyboard=True
+        )
+        self._confirm_data_ikb = InlineKeyboardMarkup(
+            inline_keyboard=[[
+                InBut(text='Да 👍', callback_data='yes'),
+                InBut(text='Нет 👎🏾', callback_data='no')
+            ]]
         )
 
     def get_filter_kb(self):
