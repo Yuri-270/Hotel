@@ -127,10 +127,40 @@ class RegistrationHandler(SupportClass):
             is_verified = await VerifyingEmail.check_verifying_key(message, state)
             if is_verified:
                 await message.answer(
-                    "Ваш email верифікований",
-                    reply_markup=ReplyKeyboardRemove()
+                    """Ваш email верифікований
+Тепер потрібно щоб ви добавили свій номер телефону
+Це можна зробити потім""",
+                    reply_markup=self._skip_phone_number
                 )
-                await self.main_menu(message, state)
+                await state.set_state(RegistrationState.INPUT_TELEPHONE_NUMBER)
 
         else:
             await message.answer("Ви ввели не код")
+
+    async def set_telephone_number(self, message: Message, state: FSMContext):
+        if message.text == "Пропустити ⤴️":
+            await message.answer(
+                "Ви можете потім ввести номер телефона \nале пока ви не можете орендувати кімнати",
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await self.main_menu(message, state)
+
+        else:
+            phone_number = message.text
+            if phone_number[0] == '+':
+                phone_number = phone_number[1:-1]
+
+            if phone_number.isnumeric():
+                state_data = await state.get_data()
+                pool = await DataBase.get_pool()
+                async with pool.acquire() as con:
+                    await con.fetch(
+                        "UPDATE users SET telephone_number = $1 WHERE id = $2",
+                        int(phone_number),
+                        state_data['USER_ID']
+                    )
+
+                await message.answer(
+                    "Номер телефона добавлений, тепер потрібно добавити дані паспорта",
+                    reply_markup=ReplyKeyboardRemove()
+                )

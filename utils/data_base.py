@@ -84,7 +84,7 @@ class DataBase:
                     second_name VARCHAR(64) NOT NULL,
                     birthday DATE NOT NULL,
                     email VARCHAR(48),
-                    telephone_number INTEGER,
+                    telephone_number BIGINT,
                     user_address VARCHAR(32),
                     passport_number VARCHAR(32),
                     passport_valid_until DATE

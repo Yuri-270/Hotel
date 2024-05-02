@@ -25,6 +25,7 @@ class SupportClass:
     def _registration_kb(self):
         self._skip_email = ReplyKeyboardMarkup(
             keyboard=[[KeyBut(text='Пропустити ⤴️')]],
+            input_field_placeholder="name123@email.com",
             resize_keyboard=True
         )
         self._verification_email_kb1 = ReplyKeyboardMarkup(
@@ -33,6 +34,11 @@ class SupportClass:
         )
         self._verification_email_kb2 = ReplyKeyboardMarkup(
             keyboard=[[KeyBut(text="Назад ⬅️")]],
+            resize_keyboard=True
+        )
+        self._skip_phone_number = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text='Пропустити ⤴️')]],
+            input_field_placeholder="+380",
             resize_keyboard=True
         )
 

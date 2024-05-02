@@ -14,6 +14,7 @@ class RegistrationState(StatesGroup):
     INPUT_BIRTHDAY = State()
     INPUT_EMAIL = State()
     VERIFICATION_EMAIL = State()
+    INPUT_TELEPHONE_NUMBER = State()
 
 
 class MainState(StatesGroup):
