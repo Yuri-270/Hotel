@@ -16,6 +16,8 @@ class RegistrationState(StatesGroup):
     VERIFICATION_EMAIL = State()
     INPUT_TELEPHONE_NUMBER = State()
     CONFIRM_THE_TRANSFER_PASSPORT_DATA = State()
+    INPUT_PASSPORT_NUMBER = State()
+    INPUT_PASSPORT_VALID_UNTIL = State()
 
 
 class MainState(StatesGroup):

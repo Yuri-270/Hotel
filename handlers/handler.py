@@ -40,6 +40,8 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.main_handler_class.set_location(message, state)
         case RegistrationState.INPUT_TELEPHONE_NUMBER:
             await handlers.registration_handler_class.set_telephone_number(message, state)
+        case RegistrationState.INPUT_PASSPORT_NUMBER:
+            await handlers.registration_handler_class.get_passport_data(message, state)
         case _:
             await message.answer("Спочатку введіть /start")
 

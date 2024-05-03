@@ -184,3 +184,27 @@ class RegistrationHandler(SupportClass):
                 reply_markup=self._back_kb
             )
             await state.set_state(RegistrationState.INPUT_PASSPORT_NUMBER)
+
+    async def get_passport_data(self, message: Message, state: FSMContext):
+        if message.text == 'Назад ⬅️':
+            await message.answer(
+                "Ви можете потом ввести дані паспорта \nале пока ви не можете орендувати кімнати",
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await self.main_menu(message, state)
+            return None
+
+        elif message.text.isnumeric() and len(message.text) == 9:
+            state_data = await state.get_data()
+            pool = await DataBase.get_pool()
+            async with pool.acquire() as con:
+                await con.fetch(
+                    "UPDATE users SET passport_number = $1 WHERE id = $2",
+                    int(message.text),
+                    state_data['USER_ID']
+                )
+                await message.answer(
+                    "Номер паспорта добавлений \nТепер введіть до якого він числа дійсний",
+                    reply_markup=self._back_kb
+                )
+                await state.set_state(RegistrationState.INPUT_PASSPORT_VALID_UNTIL)
