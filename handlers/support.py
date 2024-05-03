@@ -106,7 +106,9 @@ class SupportClass:
             return False
 
     @staticmethod
-    async def _data_checker(message: Message, data_for_checking: str):
+    async def _date_checker(message: Message, data_for_checking: str):
+        """Return tuple[True, date: datetime] if True;
+        tuple [False, None] if False"""
         data_for_checking_arr = [i for i in data_for_checking]
 
         if len(data_for_checking_arr) >= 5:

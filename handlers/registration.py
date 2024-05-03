@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram.types import Message, ReplyKeyboardRemove, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
@@ -58,7 +60,7 @@ class RegistrationHandler(SupportClass):
             await state.set_state(RegistrationState.INPUT_BIRTHDAY)
 
     async def set_birthday(self, message: Message, state: FSMContext):
-        data_check_res = await self._data_checker(message, message.text)
+        data_check_res = await self._date_checker(message, message.text)
 
         if data_check_res[0]:
             user_years_is_18 = await self.is_adult(message, data_check_res[1])
@@ -192,7 +194,6 @@ class RegistrationHandler(SupportClass):
                 reply_markup=ReplyKeyboardRemove()
             )
             await self.main_menu(message, state)
-            return None
 
         elif message.text.isnumeric() and len(message.text) == 9:
             state_data = await state.get_data()
@@ -200,7 +201,7 @@ class RegistrationHandler(SupportClass):
             async with pool.acquire() as con:
                 await con.fetch(
                     "UPDATE users SET passport_number = $1 WHERE id = $2",
-                    int(message.text),
+                    message.text,
                     state_data['USER_ID']
                 )
                 await message.answer(
@@ -208,3 +209,36 @@ class RegistrationHandler(SupportClass):
                     reply_markup=self._back_kb
                 )
                 await state.set_state(RegistrationState.INPUT_PASSPORT_VALID_UNTIL)
+
+        else:
+            await message.answer("Ви ввели не номер паспорта")
+
+    async def get_passport_valid_until(self, message: Message, state: FSMContext):
+        data_res = await self._date_checker(message, message.text)
+        if message.text == 'Назад ⬅️':
+            await message.answer(
+                "Ви можете потом ввести дані паспорта \nале пока ви не можете орендувати кімнати",
+                reply_markup=ReplyKeyboardRemove()
+            )
+            await self.main_menu(message, state)
+
+        elif data_res[0]:
+            today_date = datetime.today()
+            if today_date > data_res[1]:
+                await message.answer("Паспорт прострочений!", reply_markup=self._back_kb)
+
+            else:
+                state_data = await state.get_data()
+                pool = await DataBase.get_pool()
+                async with pool.acquire() as con:
+                    await con.fetch(
+                        "UPDATE users SET passport_valid_until = $1 WHERE id = $2",
+                        data_res[1],
+                        state_data['USER_ID']
+                    )
+
+                await message.answer("Ви пройшли регістрацію \nТепер ви можете орендувати кімнати 🎉")
+                await self.main_menu(message, state)
+
+        else:
+            await message.answer("Ви ввели не дату")

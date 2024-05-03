@@ -42,6 +42,8 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.registration_handler_class.set_telephone_number(message, state)
         case RegistrationState.INPUT_PASSPORT_NUMBER:
             await handlers.registration_handler_class.get_passport_data(message, state)
+        case RegistrationState.INPUT_PASSPORT_VALID_UNTIL:
+            await handlers.registration_handler_class.get_passport_valid_until(message, state)
         case _:
             await message.answer("Спочатку введіть /start")
 
@@ -49,7 +51,7 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
 @router.callback_query()
 async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
     await call.answer()
-    user_state = await state.get_data()
+    user_state = await state.get_state()
     match user_state:
         case RegistrationState.CONFIRM_THE_TRANSFER_PASSPORT_DATA:
             await handlers.registration_handler_class.input_passport_number(call, state)
