@@ -27,10 +27,6 @@ async def connect_to_db():
     DataBase(pool)
 
 
-async def create_db():
-    await DataBase.create_db()
-
-
 async def get_json() -> dict:
     with open("datas/default_data.json", 'r', encoding='utf-8') as json_file:
         return json.load(json_file)
@@ -89,7 +85,7 @@ async def main():
     await connect_to_db()
     progress_bar.update(1)
     if CREATE_DB:
-        await create_db()
+        await DataBase.create_db()
         progress_bar.update(1)
 
     if DELETE_DB_DATA:
