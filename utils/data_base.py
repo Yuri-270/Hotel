@@ -1,4 +1,4 @@
-from asyncpg import create_pool
+import asyncpg
 
 
 __all__ = [
@@ -7,14 +7,14 @@ __all__ = [
 
 
 class DataBase:
-    __pool: create_pool()
+    __pool: asyncpg.create_pool()
 
     def __new__(cls, pool):
         pass
 
     @classmethod
-    async def create_pool(cls, db_data: dict):
-        pool = await create_pool(
+    async def create_pool(cls, db_data: dict) -> asyncpg.create_pool():
+        pool = await asyncpg.create_pool(
             host=db_data['host'],
             port=db_data['port'],
             user=db_data['user'],
@@ -22,6 +22,8 @@ class DataBase:
             database=db_data['database_name']
         )
         cls.__pool = pool
+
+        return cls.__pool
 
     @classmethod
     async def get_pool(cls) -> create_pool:

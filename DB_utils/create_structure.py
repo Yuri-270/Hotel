@@ -9,6 +9,7 @@ async def create_structure():
     db_data: dict = await Settings.get_db_data()
     await DataBase.create_pool(db_data)
     await DataBase.create_structure()
+    print('Структура БД створена')
 
 
 if __name__ == '__main__':
