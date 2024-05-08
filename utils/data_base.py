@@ -34,11 +34,11 @@ class DataBase:
         async with cls.__pool.acquire() as con:
 
             # Create sequences
-            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS hotels_sequence""")
-            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS rooms_sequence""")
-            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS additional_service_sequence""")
-            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS users_sequence""")
-            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS booking_sequence""")
+            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS hotels_sequence START WITH 1""")
+            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS rooms_sequence START WITH 1""")
+            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS additional_service_sequence START WITH 1""")
+            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS users_sequence START WITH 1""")
+            await con.fetch("""CREATE SEQUENCE IF NOT EXISTS booking_sequence START WITH 1""")
 
             # Create tables
             await con.fetch(
