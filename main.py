@@ -24,14 +24,7 @@ async def main():
     dp.include_router(router)
 
     db_data: dict = await Settings.get_db_data()
-    pool = await asyncpg.create_pool(
-        host=db_data['host'],
-        port=db_data['port'],
-        user=db_data['user'],
-        password=db_data['password'],
-        database=db_data['database_name']
-    )
-    DataBase(pool)
+    await DataBase.create_pool(db_data)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
