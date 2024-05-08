@@ -20,11 +20,11 @@ async def delete_datas():
             await con.fetch("DELETE FROM active_additional_services")
 
             # Reset sequence
-            await con.fetch("SELECT setval('hotels_sequence', 1)")
-            await con.fetch("SELECT setval('rooms_sequence', 1)")
-            await con.fetch("SELECT setval('additional_service_sequence', 1)")
-            await con.fetch("SELECT setval('users_sequence', 1)")
-            await con.fetch("SELECT setval('booking_sequence', 1)")
+            await con.fetch("SELECT setval('hotels_sequence', 1, false)")
+            await con.fetch("SELECT setval('rooms_sequence', 1, false)")
+            await con.fetch("SELECT setval('additional_service_sequence', 1, false)")
+            await con.fetch("SELECT setval('users_sequence', 1, false)")
+            await con.fetch("SELECT setval('booking_sequence', 1, false)")
             print("Дані видалені та послідовності скинуті")
 
         except Exception as _ex:
