@@ -49,15 +49,23 @@ class SupportClass:
             ]]
         )
 
-    def get_filter_kb(self):
+    def _rent_a_room_kb(self):
         self._geo_ikb = ReplyKeyboardMarkup(
             keyboard=[[
                 KeyBut(text="Найти поруч 🗺", request_location=True),
-                KeyBut(text="Вказати потім")
+                KeyBut(text="Вказати потім ➡️"),
+                KeyBut(text="Назад ⤵️")
             ]],
             input_field_placeholder="Вкажіть місто",
             resize_keyboard=True
         )
+
+        inline_buttons_for_stars = list()
+        for i in range(1, 6):
+            inline_buttons_for_stars.append(InBut(text=str(i), callback_data=f'stars {i}'))
+        inline_buttons_for_stars.append(InBut(text="Неважно", callback_data='anything'))
+        inline_buttons_for_stars.append(InBut(text="Назад", callback_data='back'))
+        self._stars_ikb = InlineKeyboardMarkup(inline_keyboard=[inline_buttons_for_stars])
 
     @staticmethod
     async def main_menu_kb(user_id: int) -> ReplyKeyboardMarkup:

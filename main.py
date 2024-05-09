@@ -3,7 +3,7 @@ import logging
 import sys
 
 from aiogram import Bot, Dispatcher
-import asyncpg
+from aiogram.types import BotCommand
 
 from utils.data_base import DataBase
 from handlers.handler import router
@@ -27,6 +27,7 @@ async def main():
     await DataBase.create_pool(db_data)
 
     await bot.delete_webhook(drop_pending_updates=True)
+    await bot.set_my_commands([BotCommand(command='start', description='Запуск бота')])
     await dp.start_polling(bot)
 
 

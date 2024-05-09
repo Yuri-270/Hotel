@@ -24,6 +24,10 @@ class RegistrationHandler(SupportClass):
     async def command_start(self, message: Message, state: FSMContext):
         await state.update_data(USER_ID=message.from_user.id)
         pool = await DataBase.get_pool()
+        await state.update_data(CITY=None)
+        await state.update_data(STARS=None)
+        await state.update_data(PRICE_FOR_NIGHT=None)
+        await state.update_data(FOR_HOW_MANY_PEOPLE=None)
 
         async with pool.acquire() as con:
             user_data = await con.fetchval(

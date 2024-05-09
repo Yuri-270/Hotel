@@ -26,3 +26,4 @@ class MainState(StatesGroup):
 
 class SelectHotel(StatesGroup):
     GET_LOCATION = State()
+    SELECT_STARS = State()
