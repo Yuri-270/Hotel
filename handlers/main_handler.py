@@ -36,6 +36,10 @@ class MainHandler(SupportClass):
                 await message.answer("Виберіть з меню ⬇️")
 
     async def rent_a_room(self, message: Message, state: FSMContext, bot: Bot):
+        # await state.update_data(CITY=None)
+        # await state.update_data(STARS=None)
+        # await state.update_data(PRICE_FOR_NIGHT=None)
+        # await state.update_data(FOR_HOW_MANY_PEOPLE=None)
         state_data = await state.get_data()
         if state_data['CITY'] is None:
             await message.answer(
@@ -45,6 +49,7 @@ class MainHandler(SupportClass):
             await state.set_state(SelectHotel.GET_LOCATION)
 
         elif state_data['STARS'] is None:
+            await self.delete_reply_kb(message, bot)
             await message.answer(
                 "Шукати готелі з зірковістю",
                 reply_markup=self._stars_ikb
@@ -54,7 +59,7 @@ class MainHandler(SupportClass):
         elif state_data['PRICE_FOR_NIGHT'] is None:
             pass
 
-    async def set_location(self, message: Message, state: FSMContext):
+    async def set_location(self, message: Message, state: FSMContext, bot: Bot):
         if message.location:
             user_city = await self.get_city_name(
                 message.location.latitude,
@@ -77,17 +82,15 @@ class MainHandler(SupportClass):
             await state.update_data(USER_CITY=message.text.capitalize())
             await self.rent_a_room(message, state, bot)
 
-        await state.set_state()
-
-    async def set_hotel_stars(self, call: CallbackQuery, state: FSMContext):
-        stars_trigger = [f"stars {i}" for i in str(range(1, 5))]
+    async def set_hotel_stars(self, call: CallbackQuery, state: FSMContext, bot: Bot):
+        stars_trigger = [str(i) for i in range(1, 6)]
         if call.data in stars_trigger:
             await state.update_data(STARS=int(call.data[-1]))
-            await self.rent_a_room(call.message, state)
+            await self.rent_a_room(call.message, state, bot)
 
         elif call.data == 'anything':
             await state.update_data(STARS=call.data)
-            await self.rent_a_room(call.message, state)
+            await self.rent_a_room(call.message, state, bot)
 
         elif call.data == "back":
             await self.main_menu(call.message, state)

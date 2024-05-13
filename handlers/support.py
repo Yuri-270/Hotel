@@ -62,12 +62,36 @@ class SupportClass:
             resize_keyboard=True
         )
 
+        # Select hotel stars
         inline_buttons_for_stars = list()
         for i in range(1, 6):
             inline_buttons_for_stars.append(InBut(text=str(i), callback_data=f'stars {i}'))
         inline_buttons_for_stars.append(InBut(text="Неважно", callback_data='anything'))
         inline_buttons_for_stars.append(InBut(text="Назад", callback_data='back'))
         self._stars_ikb = InlineKeyboardMarkup(inline_keyboard=[inline_buttons_for_stars])
+        inline_row_for_stars = list()
+
+        i = 1
+        while i < 6:
+            inline_row_for_stars.append(InBut(text=str(i), callback_data=str(i)))
+            if len(inline_row_for_stars) == 2:
+                inline_buttons_for_stars.append(inline_row_for_stars)
+                inline_row_for_stars = []
+            i += 1
+        inline_buttons_for_stars.append([InBut(text='5', callback_data='5')])
+        inline_buttons_for_stars.append([
+            InBut(text="Пропустити", callback_data='anything'),
+            InBut(text="Назад", callback_data='back')
+        ])
+        self._stars_ikb = InlineKeyboardMarkup(inline_keyboard=inline_buttons_for_stars)
+
+    @classmethod
+    async def delete_reply_kb(cls, message: Message, bot: Bot):
+        message_data = await message.answer(
+            "Delete kb",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await bot.delete_message(chat_id=message_data.chat.id, message_id=message_data.message_id)
 
     @staticmethod
     async def main_menu_kb(user_id: int) -> ReplyKeyboardMarkup:
