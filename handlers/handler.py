@@ -45,9 +45,9 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
 
         # Main handlers
         case MainState.MAIN_HANDLER:
-            await handlers.main_handler_class.main_handler(message, state)
+            await handlers.main_handler_class.main_handler(message, state, bot)
         case SelectHotel.GET_LOCATION:
-            await handlers.main_handler_class.set_location(message, state)
+            await handlers.main_handler_class.set_location(message, state, bot)
 
         case _:
             await message.answer("Спочатку введіть /start")

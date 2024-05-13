@@ -1,4 +1,5 @@
-from aiogram.types import Message
+from aiogram import Bot
+from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 
 from handlers.support import SupportClass
@@ -16,11 +17,11 @@ class MainHandler(SupportClass):
         super().__init__()
         self._rent_a_room_kb()
 
-    async def main_handler(self, message: Message, state: FSMContext):
+    async def main_handler(self, message: Message, state: FSMContext, bot: Bot):
         match message.text:
 
             case 'Орендувати кімнату 🏙':
-                await self.rent_a_room(message, state)
+                await self.rent_a_room(message, state, bot)
 
             case 'Настройки ⚙️':
                 await self.settings(message, state)
@@ -34,7 +35,7 @@ class MainHandler(SupportClass):
             case _:
                 await message.answer("Виберіть з меню ⬇️")
 
-    async def rent_a_room(self, message: Message, state: FSMContext):
+    async def rent_a_room(self, message: Message, state: FSMContext, bot: Bot):
         state_data = await state.get_data()
         if state_data['CITY'] is None:
             await message.answer(
@@ -61,17 +62,20 @@ class MainHandler(SupportClass):
             )
             await message.answer(f"Вибрано місто <b>{user_city.capitalize()}</b>", parse_mode='HTML')
             await state.update_data(CITY=user_city.capitalize())
+            await self.rent_a_room(message, state, bot)
 
         elif message.text == "Вказати потім ➡️":
             await message.answer("Виведуться міста по всій Україні")
             await state.update_data(CITY='anything')
+            await self.rent_a_room(message, state, bot)
 
-        elif message.text == "Назад ⤵️":
+        elif message.text == "На головне меню ⤵️":
             await self.main_menu(message, state)
 
         else:
             await message.answer(f"Вибрано місто <b>{message.text.capitalize()}</b>", parse_mode='HTML')
             await state.update_data(USER_CITY=message.text.capitalize())
+            await self.rent_a_room(message, state, bot)
 
         await state.set_state()
 

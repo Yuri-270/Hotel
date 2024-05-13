@@ -1,8 +1,9 @@
 from datetime import datetime
 from re import match
-import requests
+import aiohttp
 
-from aiogram.types import Message
+from aiogram import Bot
+from aiogram.types import Message, ReplyKeyboardRemove
 from aiogram.enums.parse_mode import ParseMode
 from aiogram.utils.keyboard import ReplyKeyboardMarkup, KeyboardButton as KeyBut
 from aiogram.utils.keyboard import InlineKeyboardMarkup, InlineKeyboardButton as InBut
@@ -50,11 +51,12 @@ class SupportClass:
         )
 
     def _rent_a_room_kb(self):
+        # Get location
         self._geo_ikb = ReplyKeyboardMarkup(
             keyboard=[[
                 KeyBut(text="Найти поруч 🗺", request_location=True),
                 KeyBut(text="Вказати потім ➡️"),
-                KeyBut(text="Назад ⤵️")
+                KeyBut(text="На головне меню ⤵️")
             ]],
             input_field_placeholder="Вкажіть місто",
             resize_keyboard=True
@@ -155,15 +157,17 @@ class SupportClass:
     @staticmethod
     async def get_city_name(latitude: float, longitude: float) -> str:
         url = f"https://nominatim.openstreetmap.org/reverse?lat={latitude}&lon={longitude}&format=json"
-        response = requests.get(url)
-        data = response.json()
-        city = data.get('address', {}).get('city')
-        if city is None:
-            city = data.get('address', {}).get('town')
-        if city is None:
-            city = data.get('address', {}).get('village')
-        if city is None:
-            city = data.get('address', {}).get('hamlet')
-        if city is None:
-            city = data.get('address', {}).get('locality')
-        return city
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                data = await response.json()
+                city = data.get('address', {}).get('city')
+                if city is None:
+                    city = data.get('address', {}).get('town')
+                if city is None:
+                    city = data.get('address', {}).get('village')
+                if city is None:
+                    city = data.get('address', {}).get('hamlet')
+                if city is None:
+                    city = data.get('address', {}).get('locality')
+                return city
