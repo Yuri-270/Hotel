@@ -64,11 +64,6 @@ class SupportClass:
 
         # Select hotel stars
         inline_buttons_for_stars = list()
-        for i in range(1, 6):
-            inline_buttons_for_stars.append(InBut(text=str(i), callback_data=f'stars {i}'))
-        inline_buttons_for_stars.append(InBut(text="Неважно", callback_data='anything'))
-        inline_buttons_for_stars.append(InBut(text="Назад", callback_data='back'))
-        self._stars_ikb = InlineKeyboardMarkup(inline_keyboard=[inline_buttons_for_stars])
         inline_row_for_stars = list()
 
         i = 1
@@ -81,9 +76,21 @@ class SupportClass:
         inline_buttons_for_stars.append([InBut(text='5', callback_data='5')])
         inline_buttons_for_stars.append([
             InBut(text="Пропустити", callback_data='anything'),
-            InBut(text="Назад", callback_data='back')
+            InBut(text="На головне меню", callback_data='back')
         ])
         self._stars_ikb = InlineKeyboardMarkup(inline_keyboard=inline_buttons_for_stars)
+
+        # Select starting price for night
+        self._starting_price_for_night_kb = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text="Від 0₴"), KeyBut(text="Назад ⤵️")]],
+            resize_keyboard=True
+        )
+
+        # Select final price for night
+        self._final_price_for_night_kb = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text="До 100 000₴"), KeyBut(text="Назад ⤵️")]],
+            resize_keyboard=True
+        )
 
     @classmethod
     async def delete_reply_kb(cls, message: Message, bot: Bot):

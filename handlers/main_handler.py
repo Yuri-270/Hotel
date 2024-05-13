@@ -57,7 +57,11 @@ class MainHandler(SupportClass):
             await state.set_state(SelectHotel.SELECT_STARS)
 
         elif state_data['PRICE_FOR_NIGHT'] is None:
-            pass
+            await message.answer(
+                "Введіть сумму 'від'",
+                reply_markup=self._starting_price_for_night_kb
+            )
+            await state.set_state(SelectHotel.SET_STARTING_PRICE)
 
     async def set_location(self, message: Message, state: FSMContext, bot: Bot):
         if message.location:
@@ -94,6 +98,58 @@ class MainHandler(SupportClass):
 
         elif call.data == "back":
             await self.main_menu(call.message, state)
+
+    async def set_starting_price(self, message: Message, state: FSMContext):
+        if message.text == "Назад ⤵️":
+            await self.main_menu(message, state)
+
+        elif message.text == "Від 0₴":
+            await state.update_data(PRICE_FOR_NIGHT=[0, 100_000])
+
+            await message.answer(
+                "Введіть сумму 'до'",
+                reply_markup=self._final_price_for_night_kb
+            )
+            await state.set_state(SelectHotel.SET_FINISHING_PRICE)
+
+        elif message.text.isnumeric():
+            price_for_night = float(message.text)
+            if price_for_night > 100_000:
+                price_for_night = 100_000
+            elif price_for_night < 0:
+                price_for_night = 0
+            await state.update_data(PRICE_FOR_NIGHT=[price_for_night, 100_000])
+
+            await message.answer(
+                "Введіть сумму 'до'",
+                reply_markup=self._final_price_for_night_kb
+            )
+            await state.set_state(SelectHotel.SET_FINISHING_PRICE)
+
+        else:
+            await message.answer("Ви ввели не число")
+
+    async def set_final_price(self, message: Message, state: FSMContext, bot: Bot):
+        state_data = await state.get_data()
+        if message.text == "Назад ⤵️":
+            await self.main_menu(message, state)
+
+        elif message.text == "До 100 000₴":
+            await state.update_data(PRICE_FOR_NIGHT=[state_data['PRICE_FOR_NIGHT'][0], 100_000])
+            await self.rent_a_room(message, state, bot)
+
+        elif message.text.isnumeric():
+            price_for_night = float(message.text)
+            if price_for_night > 100_000:
+                price_for_night = 100_000
+            elif price_for_night < 0:
+                price_for_night = 0
+
+            await state.update_data(PRICE_FOR_NIGHT=[state_data['PRICE_FOR_NIGHT'][0], price_for_night])
+            await self.rent_a_room(message, state, bot)
+
+        else:
+            await message.answer("Ви ввели не число")
 
     async def settings(self, message: Message, state: FSMContext):
         pass
