@@ -92,6 +92,12 @@ class SupportClass:
             resize_keyboard=True
         )
 
+        # Select for how many people
+        self._for_how_many_people_kb = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text="Пропустити"), KeyBut(text="На головне меню ⤵️")]],
+            resize_keyboard=True
+        )
+
     @classmethod
     async def delete_reply_kb(cls, message: Message, bot: Bot):
         message_data = await message.answer(

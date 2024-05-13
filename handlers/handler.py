@@ -52,6 +52,8 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.main_handler_class.set_starting_price(message, state)
         case SelectHotel.SET_FINISHING_PRICE:
             await handlers.main_handler_class.set_final_price(message, state, bot)
+        case SelectHotel.SET_FOR_HOW_MANY_PEOPLE:
+            await handlers.main_handler_class.set_for_how_many_people(message, state, bot)
 
         case _:
             await message.answer("Спочатку введіть /start")

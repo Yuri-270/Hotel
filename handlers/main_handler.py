@@ -36,10 +36,6 @@ class MainHandler(SupportClass):
                 await message.answer("Виберіть з меню ⬇️")
 
     async def rent_a_room(self, message: Message, state: FSMContext, bot: Bot):
-        # await state.update_data(CITY=None)
-        # await state.update_data(STARS=None)
-        # await state.update_data(PRICE_FOR_NIGHT=None)
-        # await state.update_data(FOR_HOW_MANY_PEOPLE=None)
         state_data = await state.get_data()
         if state_data['CITY'] is None:
             await message.answer(
@@ -62,6 +58,13 @@ class MainHandler(SupportClass):
                 reply_markup=self._starting_price_for_night_kb
             )
             await state.set_state(SelectHotel.SET_STARTING_PRICE)
+
+        elif state_data['FOR_HOW_MANY_PEOPLE'] is None:
+            await message.answer(
+                "Для скількох людей",
+                reply_markup=self._for_how_many_people_kb
+            )
+            await state.set_state(SelectHotel.SET_FOR_HOW_MANY_PEOPLE)
 
     async def set_location(self, message: Message, state: FSMContext, bot: Bot):
         if message.location:
@@ -146,6 +149,27 @@ class MainHandler(SupportClass):
                 price_for_night = 0
 
             await state.update_data(PRICE_FOR_NIGHT=[state_data['PRICE_FOR_NIGHT'][0], price_for_night])
+            await self.rent_a_room(message, state, bot)
+
+        else:
+            await message.answer("Ви ввели не число")
+
+    async def set_for_how_many_people(self, message: Message, state: FSMContext, bot: Bot):
+        if message.text == "Пропустити":
+            await state.update_data(FOR_HOW_MANY_PEOPLE='anything')
+            await self.rent_a_room(message, state, bot)
+
+        elif message.text == "На головне меню ⤵️":
+            await self.main_menu(message, state)
+
+        elif message.text.isnumeric():
+            num_of_people = int(message.text)
+            if num_of_people < 1:
+                num_of_people = 1
+            elif num_of_people > 10:
+                num_of_people = 10
+
+            await state.update_data(FOR_HOW_MANY_PEOPLE=num_of_people)
             await self.rent_a_room(message, state, bot)
 
         else:

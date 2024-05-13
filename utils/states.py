@@ -29,3 +29,4 @@ class SelectHotel(StatesGroup):
     SELECT_STARS = State()
     SET_STARTING_PRICE = State()
     SET_FINISHING_PRICE = State()
+    SET_FOR_HOW_MANY_PEOPLE = State()
