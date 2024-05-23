@@ -48,12 +48,6 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.main_handler_class.main_handler(message, state, bot)
         case SelectHotel.GET_LOCATION:
             await handlers.main_handler_class.set_location(message, state, bot)
-        case SelectHotel.SET_STARTING_PRICE:
-            await handlers.main_handler_class.set_starting_price(message, state)
-        case SelectHotel.SET_FINISHING_PRICE:
-            await handlers.main_handler_class.set_final_price(message, state, bot)
-        case SelectHotel.SET_FOR_HOW_MANY_PEOPLE:
-            await handlers.main_handler_class.set_for_how_many_people(message, state, bot)
 
         case _:
             await message.answer("Спочатку введіть /start")
@@ -66,5 +60,5 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
     match user_state:
         case RegistrationState.CONFIRM_THE_TRANSFER_PASSPORT_DATA:
             await handlers.registration_handler_class.input_passport_number(call, state)
-        case SelectHotel.SELECT_STARS:
-            await handlers.main_handler_class.set_hotel_stars(call, state, bot)
+        case SelectHotel.RENT_A_ROOM_HANDLER:
+            await handlers.rent_a_room_class.rent_a_room_handler(call, state)

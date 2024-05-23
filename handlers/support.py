@@ -55,7 +55,6 @@ class SupportClass:
         self._geo_ikb = ReplyKeyboardMarkup(
             keyboard=[[
                 KeyBut(text="Найти поруч 🗺", request_location=True),
-                KeyBut(text="Вказати потім ➡️"),
                 KeyBut(text="На головне меню ⤵️")
             ]],
             input_field_placeholder="Вкажіть місто",
@@ -97,6 +96,28 @@ class SupportClass:
             keyboard=[[KeyBut(text="Пропустити"), KeyBut(text="На головне меню ⤵️")]],
             resize_keyboard=True
         )
+
+    @staticmethod
+    async def _rent_a_room_kb_builder(num_of_rooms: int) -> InlineKeyboardMarkup:
+        i = 1
+        buttons = list()
+        button_row = list()
+        while i <= num_of_rooms:
+            button_row.append(InBut(text=str(i), callback_data=str(i)))
+            if len(button_row) == 3:
+                buttons.append(button_row)
+                button_row = list()
+            i += 1
+        if len(button_row) != 0:
+            buttons.append(button_row)
+
+        buttons.append([
+            InBut(text="Змінити місто", callback_data='Change_city'),
+            InBut(text="На головне меню", callback_data='in_main_menu')
+        ])
+
+        ikb = InlineKeyboardMarkup(inline_keyboard=buttons)
+        return ikb
 
     @classmethod
     async def delete_reply_kb(cls, message: Message, bot: Bot):
