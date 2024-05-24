@@ -105,6 +105,16 @@ class SupportClass:
             ]]
         )
 
+        # Today date
+        self._set_date_of_arrival_kb = ReplyKeyboardMarkup(
+            keyboard=[[
+                KeyBut(text="Вказати сьогоднішню дату"),
+                KeyBut(text="Назад ⤵️")
+            ]],
+            input_field_placeholder="Вкажіть дату в форматі dd.mm.yyyy",
+            resize_keyboard=True
+        )
+
     @staticmethod
     async def _rent_a_room_kb_builder(num_of_rooms: int) -> InlineKeyboardMarkup:
         i = 1

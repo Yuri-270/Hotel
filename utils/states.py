@@ -28,3 +28,4 @@ class SelectHotel(StatesGroup):
     GET_LOCATION = State()
     RENT_A_ROOM_HANDLER = State()
     RENT_A_SELECTED_ROOM_HANDLER = State()
+    SET_DATE_OF_ARRIVAL = State()

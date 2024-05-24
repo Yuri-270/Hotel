@@ -111,11 +111,12 @@ class RentARoom(SupportClass):
                     user_message += f"\n\nМожна орендувати на <b>{num_of_night}</b> {num_of_night_str}"
                     user_message += f" до <b>{friend_lease:%d.%m.%Y}</b>"
 
-                await call.message.answer(
+                last_message = await call.message.answer(
                     user_message,
                     parse_mode=ParseMode.HTML,
                     reply_markup=self._do_rent_a_room_ikb
                 )
+                await state.update_data(LAST_MESSAGE=last_message)
                 await state.set_state(SelectHotel.RENT_A_SELECTED_ROOM_HANDLER)
 
         elif call.data == "Change_city":
@@ -128,5 +129,22 @@ class RentARoom(SupportClass):
         elif call.data == "In_main_menu":
             await self.main_menu(call.message, state)
 
-    async def rent_a_selected_room_handler(self, call: CallbackQuery, state: FSMContext):
+    async def rent_a_selected_room_handler(self, call: CallbackQuery, state: FSMContext, bot: Bot):
+        state_data = await state.get_data()
+        last_message: Message = state_data["LAST_MESSAGE"]
+        await bot.delete_message(chat_id=last_message.chat.id, message_id=last_message.message_id)
+
+        if call.data == "Back":
+            await self.get_hotels(call.message, state)
+
+        elif call.data == "Rent":
+            await call.message.answer(
+                "Вкажіть дату заїзду",
+                reply_markup=self._set_date_of_arrival_kb
+            )
+            await state.set_state(SelectHotel.SET_DATE_OF_ARRIVAL)
+
+    async def set_date_of_arrival(self, message: Message, state: FSMContext):
+        # "Вказати сьогоднішню дату"
+        # "Назад ⤵️"
         pass

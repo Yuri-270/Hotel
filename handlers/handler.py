@@ -48,6 +48,8 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.main_handler_class.main_handler(message, state, bot)
         case SelectHotel.GET_LOCATION:
             await handlers.main_handler_class.set_location(message, state, bot)
+        case SelectHotel.SET_DATE_OF_ARRIVAL:
+            await handlers.rent_a_room_class.set_date_of_arrival(message, state)
 
         case _:
             await message.answer("Спочатку введіть /start")
@@ -63,4 +65,4 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
         case SelectHotel.RENT_A_ROOM_HANDLER:
             await handlers.rent_a_room_class.rent_a_room_handler(call, state, bot)
         case SelectHotel.RENT_A_SELECTED_ROOM_HANDLER:
-            await handlers.rent_a_room_class.rent_a_selected_room_handler(call, state)
+            await handlers.rent_a_room_class.rent_a_selected_room_handler(call, state, bot)
