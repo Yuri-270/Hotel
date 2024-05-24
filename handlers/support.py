@@ -97,6 +97,14 @@ class SupportClass:
             resize_keyboard=True
         )
 
+        # Do rent a room
+        self._do_rent_a_room_ikb = InlineKeyboardMarkup(
+            inline_keyboard=[[
+                InBut(text="Назад", callback_data='Back'),
+                InBut(text="Орендувати", callback_data='Rent')
+            ]]
+        )
+
     @staticmethod
     async def _rent_a_room_kb_builder(num_of_rooms: int) -> InlineKeyboardMarkup:
         i = 1
@@ -113,7 +121,7 @@ class SupportClass:
 
         buttons.append([
             InBut(text="Змінити місто", callback_data='Change_city'),
-            InBut(text="На головне меню", callback_data='in_main_menu')
+            InBut(text="На головне меню", callback_data='In_main_menu')
         ])
 
         ikb = InlineKeyboardMarkup(inline_keyboard=buttons)

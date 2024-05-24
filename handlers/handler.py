@@ -61,4 +61,6 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
         case RegistrationState.CONFIRM_THE_TRANSFER_PASSPORT_DATA:
             await handlers.registration_handler_class.input_passport_number(call, state)
         case SelectHotel.RENT_A_ROOM_HANDLER:
-            await handlers.rent_a_room_class.rent_a_room_handler(call, state)
+            await handlers.rent_a_room_class.rent_a_room_handler(call, state, bot)
+        case SelectHotel.RENT_A_SELECTED_ROOM_HANDLER:
+            await handlers.rent_a_room_class.rent_a_selected_room_handler(call, state)
