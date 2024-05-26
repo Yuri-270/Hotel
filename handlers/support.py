@@ -22,7 +22,10 @@ class SupportClass:
     _geo_ikb: ReplyKeyboardMarkup
 
     def __init__(self):
-        pass
+        self._back_kb = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text="Назад ⬅️")]],
+            resize_keyboard=True
+        )
 
     def _registration_kb(self):
         self._skip_email = ReplyKeyboardMarkup(
@@ -32,10 +35,6 @@ class SupportClass:
         )
         self._verification_email_kb = ReplyKeyboardMarkup(
             keyboard=[[KeyBut(text='Відправити ще раз 🔄'), KeyBut(text="Назад ⬅️")]],
-            resize_keyboard=True
-        )
-        self._back_kb = ReplyKeyboardMarkup(
-            keyboard=[[KeyBut(text="Назад ⬅️")]],
             resize_keyboard=True
         )
         self._skip_phone_number = ReplyKeyboardMarkup(
@@ -206,7 +205,7 @@ class SupportClass:
             data_for_checking += letter
 
         try:
-            return True, datetime.strptime(data_for_checking, "%d.%m.%Y")
+            return True, datetime.strptime(data_for_checking, "%d.%m.%Y").date()
         except ValueError:
             await message.answer(
                 "Дата не в форматі <i>dd.mm.yyyy</i>",

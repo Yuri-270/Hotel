@@ -89,7 +89,7 @@ class RentARoom(SupportClass):
                 await state.update_data(ROOM_INFO=room_data)
 
                 user_message = f"""Ціна за ніч 🏙: <b>{room_data['price_for_night']}</b>
-Адреса 🗺: <b><i>{hotel_data['city']} {hotel_data['address']}</i></b>
+Адреса 🗺: <b><i>{hotel_data['city']}, {hotel_data['address']}</i></b>
 Зірок ⭐️: <b>{hotel_data['stars']}</b>
 На скільки людей розрахована 🖐: <b>{room_data['for_how_many_people']}</b>"""
 
@@ -132,11 +132,38 @@ class RentARoom(SupportClass):
         elif call.data == "Rent":
             await call.message.answer(
                 "Вкажіть дату заїзду",
-                reply_markup=self._set_date_of_arrival_kb
+                reply_markup=self._back_kb
             )
             await state.set_state(SelectHotel.SET_DATE_OF_ARRIVAL)
 
     async def set_date_of_arrival(self, message: Message, state: FSMContext):
-        # "Вказати сьогоднішню дату"
-        # "Назад ⤵️"
+        if message.text == "Назад ⬅️":
+            await self.get_hotels(message, state)
+            return None
+
+        date_res = await self._date_checker(message, message.text)
+        if date_res[0]:
+            today_date = datetime.today().date()
+            if today_date < date_res[1]:
+                state_data = await state.get_data()
+
+                if len(state_data['FRIEND_LEASE']) != 0:
+                    for one_lease in state_data['FRIEND_LEASE']:
+                        if one_lease[0] <= date_res[1] <= one_lease[1]:
+                            break
+                    else:
+                        await state.update_data(DATE_OF_ARRIVAL=date_res[1])
+
+                        await message.answer(
+                            "Введіть дату виїзду",
+                            reply_markup=self._back_kb
+                        )
+                        await state.set_state(SelectHotel.SET_DATE_OF_DEPARTURE)
+                        return None
+                    await message.answer("Указана дата вже заброньована")
+
+            else:
+                await message.answer("Указана дата неактуальна")
+
+    async def set_date_of_departure(self, message: Message, state: FSMContext):
         pass

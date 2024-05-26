@@ -50,6 +50,8 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.main_handler_class.set_location(message, state, bot)
         case SelectHotel.SET_DATE_OF_ARRIVAL:
             await handlers.rent_a_room_class.set_date_of_arrival(message, state)
+        case SelectHotel.SET_DATE_OF_DEPARTURE:
+            await handlers.rent_a_room_class.set_date_of_departure(message, state)
 
         case _:
             await message.answer("Спочатку введіть /start")
