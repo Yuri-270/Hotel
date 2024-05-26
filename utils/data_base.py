@@ -90,7 +90,7 @@ class DataBase:
                     user_id INTEGER NOT NULL,
                     room_id INTEGER NOT NULL,
                     date_of_arrival DATE NOT NULL,
-                    num_of_nights INTEGER NOT NULL
+                    date_of_departure DATE NOT NULL
                 )"""
             )
             await con.fetch(

@@ -93,23 +93,15 @@ class RentARoom(SupportClass):
 Зірок ⭐️: <b>{hotel_data['stars']}</b>
 На скільки людей розрахована 🖐: <b>{room_data['for_how_many_people']}</b>"""
 
-                friend_lease = await con.fetchval(
-                    "SELECT date_of_arrival FROM booking WHERE room_id = $1",
+                friend_lease = await con.fetch(
+                    "SELECT date_of_arrival, date_of_departure FROM booking WHERE room_id = $1",
                     selected_room_id[0]
                 )
-                if friend_lease is not None:
-                    today_date = datetime.today().date()
-                    num_of_night = friend_lease - today_date
-                    num_of_night = num_of_night.days - 1
-
-                    if num_of_night % 10 == 1:
-                        num_of_night_str = 'ніч'
-                    elif 1 < num_of_night % 10 < 5:
-                        num_of_night_str = 'ночі'
-                    else:
-                        num_of_night_str = 'ночей'
-                    user_message += f"\n\nМожна орендувати на <b>{num_of_night}</b> {num_of_night_str}"
-                    user_message += f" до <b>{friend_lease:%d.%m.%Y}</b>"
+                await state.update_data(FRIEND_LEASE=friend_lease)
+                if len(friend_lease) != 0:
+                    user_message += f"\n\nНомер вже заброньований на період:"
+                    for one_lease in friend_lease:
+                        user_message += f"\n<b>{one_lease[0]:%d.%m.%Y} - {one_lease[1]:%d.%m.%Y}</b>"
 
                 last_message = await call.message.answer(
                     user_message,
