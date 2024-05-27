@@ -114,6 +114,14 @@ class SupportClass:
             resize_keyboard=True
         )
 
+        # Confirm payment ikb
+        self._confirm_payment_ikb = InlineKeyboardMarkup(
+            inline_keyboard=[[
+                InBut(text="Відмінити", callback_data='cancel'),
+                InBut(text="Забронювати", callback_data='confirm')
+            ]]
+        )
+
     @staticmethod
     async def _rent_a_room_kb_builder(num_of_rooms: int) -> InlineKeyboardMarkup:
         i = 1

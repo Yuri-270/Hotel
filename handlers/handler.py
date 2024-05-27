@@ -68,3 +68,5 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
             await handlers.rent_a_room_class.rent_a_room_handler(call, state, bot)
         case SelectHotel.RENT_A_SELECTED_ROOM_HANDLER:
             await handlers.rent_a_room_class.rent_a_selected_room_handler(call, state, bot)
+        case SelectHotel.CONFIRM_RESERVATIONS:
+            await handlers.rent_a_room_class.confirm_payment(call, state)

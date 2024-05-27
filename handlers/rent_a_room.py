@@ -78,7 +78,7 @@ class RentARoom(SupportClass):
 
                 # price, street, star, for people
                 room_data = await con.fetchrow(
-                    """SELECT in_hotel, price_for_night, for_how_many_people 
+                    """SELECT id, in_hotel, price_for_night, for_how_many_people 
                     FROM rooms WHERE id = $1 AND status = 'Ready to receive'""",
                     selected_room_id[0]
                 )
@@ -87,6 +87,7 @@ class RentARoom(SupportClass):
                     room_data['in_hotel']
                 )
                 await state.update_data(ROOM_INFO=room_data)
+                await state.update_data(HOTEL_INFO=hotel_data)
 
                 user_message = f"""Ціна за ніч 🏙: <b>{room_data['price_for_night']}</b>
 Адреса 🗺: <b><i>{hotel_data['city']}, {hotel_data['address']}</i></b>
@@ -166,4 +167,71 @@ class RentARoom(SupportClass):
                 await message.answer("Указана дата неактуальна")
 
     async def set_date_of_departure(self, message: Message, state: FSMContext):
-        pass
+        if message.text == "Назад ⬅️":
+            await message.answer(
+                "Вкажіть дату заїзду",
+                reply_markup=self._back_kb
+            )
+            await state.set_state(SelectHotel.SET_DATE_OF_ARRIVAL)
+
+        date_res = await self._date_checker(message, message.text)
+        if date_res[0]:
+            today_date = datetime.today().date()
+            if today_date < date_res[1]:
+                state_data = await state.get_data()
+
+                if len(state_data['FRIEND_LEASE']) != 0:
+                    for one_lease in state_data['FRIEND_LEASE']:
+                        if one_lease[0] <= date_res[1] <= one_lease[1]:
+                            break
+                    else:
+                        await state.update_data(DATE_OF_DEPARTURE=date_res[1])
+                        await self.__outcomes_of_lease(message, state)  # Confirm payment
+                        return None
+                    await message.answer("Указана дата вже заброньована")
+
+            else:
+                await message.answer("Указана дата неактуальна")
+
+    async def __outcomes_of_lease(self, message: Message, state: FSMContext):
+        state_data = await state.get_data()
+        room_address = state_data['ROOM_INFO']
+        hotel_address = state_data['HOTEL_INFO']
+        date_of_arrival = state_data['DATE_OF_ARRIVAL']
+        date_of_departure = state_data['DATE_OF_DEPARTURE']
+
+        if (date_of_departure - date_of_arrival).days >= 0:
+            gap = (date_of_departure - date_of_arrival).days
+        else:
+            gap = date_of_arrival - date_of_departure
+            await state.update_data(DATE_OF_ARRIVAL=date_of_departure)
+            await state.update_data(DATE_OF_DEPARTURE=date_of_arrival)
+
+        await message.answer(
+            f"""Забронювати кімнату в: 
+<b><i>{hotel_address[0]}, {hotel_address[1]}</i></b>
+на период <b>{date_of_arrival:%d.%m.%Y} - {date_of_departure:%d.%m.%Y}</b>
+
+Ціна: <b>{room_address['price_for_night']*(gap+1)}</b>""",
+            reply_markup=self._confirm_payment_ikb,
+            parse_mode=ParseMode.HTML
+        )
+        await state.set_state(SelectHotel.CONFIRM_RESERVATIONS)
+
+    async def confirm_payment(self, call: CallbackQuery, state: FSMContext):
+        if call.data == "cancel":
+            await self.main_menu(call.message, state)
+
+        elif call.data == "confirm":
+            pool = await DataBase.get_pool()
+            async with pool.acquire() as con:
+                state_data = await state.get_data()
+                await con.fetch(
+                    "INSERT INTO booking(user_id, room_id, date_of_arrival, date_of_departure) VALUES ($1, $2, $3, $4)",
+                    state_data['USER_ID'],
+                    state_data['ROOM_INFO']["id"],
+                    state_data['DATE_OF_ARRIVAL'],
+                    state_data['DATE_OF_DEPARTURE']
+                )
+            await call.message.answer("Ваш номер заброньований")
+            await self.main_menu(call.message, state)
