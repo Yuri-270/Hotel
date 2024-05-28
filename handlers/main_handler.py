@@ -55,13 +55,13 @@ class MainHandler(SupportClass):
         state_data = await state.get_data()
         pool = await DataBase.get_pool()
         async with pool.acquire() as con:
-            users_data = await con.fetch(
-                "SELECT * FROM users WHERE id = $1",
+            users_data = await con.fetchrow(
+                "SELECT email, telephone_number, passport_number, passport_valid_until FROM users WHERE id = $1",
                 state_data['USER_ID']
             )
 
             all_data_confirm = True
-            if users_data['email'] is not None:
+            if users_data['email'] is None:
                 all_data_confirm = False
             elif users_data['telephone_number']:
                 all_data_confirm = False

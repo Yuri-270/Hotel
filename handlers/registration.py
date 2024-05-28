@@ -100,9 +100,10 @@ class RegistrationHandler(SupportClass):
             if await self.is_email(message.text):
                 await state.update_data(EMAIL=message.text)
                 await VerifyingEmail.send_message(message, state)
+                kb = await self._get_verification_email_kb()
                 await message.answer(
                     f"Вам на {message.text} має прийти код для верифікації \nВведіть його в поле нижче",
-                    reply_markup=self._verification_email_kb
+                    reply_markup=kb
                 )
                 await state.set_state(RegistrationState.VERIFICATION_EMAIL)
 
@@ -111,10 +112,12 @@ class RegistrationHandler(SupportClass):
 
     async def check_verification_email_key(self, message: Message, state: FSMContext):
         if message.text == 'Відправити ще раз 🔄':
+            state_data = await state.get_data()
             await VerifyingEmail.send_message(message, state)
+            kb = await self._get_verification_email_kb(False)
             await message.answer(
-                f"Вам на {message.text} має прийти код для верифікації \nВведіть його в поле нижче",
-                reply_markup=self._back_kb
+                f"Вам на {state_data['EMAIL']} має прийти код для верифікації \nВведіть його в поле нижче",
+                reply_markup=kb
             )
             await state.set_state(RegistrationState.VERIFICATION_EMAIL)
 
@@ -215,16 +218,17 @@ class RegistrationHandler(SupportClass):
             await message.answer("Ви ввели не номер паспорта")
 
     async def get_passport_valid_until(self, message: Message, state: FSMContext):
-        data_res = await self._date_checker(message, message.text)
         if message.text == 'Назад ⬅️':
             await message.answer(
                 "Ви можете потом ввести дані паспорта \nале пока ви не можете орендувати кімнати",
                 reply_markup=ReplyKeyboardRemove()
             )
             await self.main_menu(message, state)
+            return None
 
-        elif data_res[0]:
-            today_date = datetime.today()
+        data_res = await self._date_checker(message, message.text)
+        if data_res[0]:
+            today_date = datetime.today().date()
             if today_date > data_res[1]:
                 await message.answer("Паспорт прострочений!", reply_markup=self._back_kb)
 

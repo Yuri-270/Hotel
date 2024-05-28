@@ -49,6 +49,20 @@ class SupportClass:
             ]]
         )
 
+    @staticmethod
+    async def _get_verification_email_kb(send_code_again=True) -> ReplyKeyboardMarkup:
+        if send_code_again:
+            buttons = [[KeyBut(text='Відправити ще раз 🔄'), KeyBut(text="Назад ⬅️")]]
+        else:
+            buttons = [[KeyBut(text="Назад ⬅️")]]
+
+        ikb = ReplyKeyboardMarkup(
+            keyboard=buttons,
+            input_field_placeholder="Введіть 6-значний код сюда",
+            resize_keyboard=True
+        )
+        return ikb
+
     def _rent_a_room_kb(self):
         # Get location
         self._geo_ikb = ReplyKeyboardMarkup(
@@ -223,7 +237,7 @@ class SupportClass:
 
     @staticmethod
     async def is_adult(message: Message, selected_date):
-        today_date = datetime.today()
+        today_date = datetime.today().date()
         birth_date_ = today_date - selected_date
 
         if birth_date_.days // 365.25 >= 18:

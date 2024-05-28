@@ -154,7 +154,6 @@ class RentARoom(SupportClass):
                             break
                     else:
                         await state.update_data(DATE_OF_ARRIVAL=date_res[1])
-
                         await message.answer(
                             "Введіть дату виїзду",
                             reply_markup=self._back_kb
@@ -162,6 +161,14 @@ class RentARoom(SupportClass):
                         await state.set_state(SelectHotel.SET_DATE_OF_DEPARTURE)
                         return None
                     await message.answer("Указана дата вже заброньована")
+
+                else:
+                    await state.update_data(DATE_OF_ARRIVAL=date_res[1])
+                    await message.answer(
+                        "Введіть дату виїзду",
+                        reply_markup=self._back_kb
+                    )
+                    await state.set_state(SelectHotel.SET_DATE_OF_DEPARTURE)
 
             else:
                 await message.answer("Указана дата неактуальна")
@@ -190,6 +197,10 @@ class RentARoom(SupportClass):
                         return None
                     await message.answer("Указана дата вже заброньована")
 
+                else:
+                    await state.update_data(DATE_OF_DEPARTURE=date_res[1])
+                    await self.__outcomes_of_lease(message, state)  # Confirm payment
+
             else:
                 await message.answer("Указана дата неактуальна")
 
@@ -203,11 +214,11 @@ class RentARoom(SupportClass):
         if (date_of_departure - date_of_arrival).days >= 0:
             gap = (date_of_departure - date_of_arrival).days
         else:
-            gap = date_of_arrival - date_of_departure
+            gap = (date_of_arrival - date_of_departure).days
             await state.update_data(DATE_OF_ARRIVAL=date_of_departure)
             await state.update_data(DATE_OF_DEPARTURE=date_of_arrival)
 
-        await message.answer(
+        last_message = await message.answer(
             f"""Забронювати кімнату в: 
 <b><i>{hotel_address[0]}, {hotel_address[1]}</i></b>
 на период <b>{date_of_arrival:%d.%m.%Y} - {date_of_departure:%d.%m.%Y}</b>
@@ -216,9 +227,10 @@ class RentARoom(SupportClass):
             reply_markup=self._confirm_payment_ikb,
             parse_mode=ParseMode.HTML
         )
+        await state.update_data(LAST_MESSAGE=last_message)
         await state.set_state(SelectHotel.CONFIRM_RESERVATIONS)
 
-    async def confirm_payment(self, call: CallbackQuery, state: FSMContext):
+    async def confirm_payment(self, call: CallbackQuery, state: FSMContext, bot: Bot):
         if call.data == "cancel":
             await self.main_menu(call.message, state)
 
@@ -233,5 +245,18 @@ class RentARoom(SupportClass):
                     state_data['DATE_OF_ARRIVAL'],
                     state_data['DATE_OF_DEPARTURE']
                 )
-            await call.message.answer("Ваш номер заброньований")
+                booking_id = await con.fetchval(
+                    """SELECT booking_id FROM booking 
+                    WHERE room_id = $1 AND date_of_arrival = $2 AND date_of_departure = $3""",
+                    state_data['ROOM_INFO']["id"],
+                    state_data['DATE_OF_ARRIVAL'],
+                    state_data['DATE_OF_DEPARTURE']
+                )
+            last_message: Message = state_data["LAST_MESSAGE"]
+            await bot.delete_message(chat_id=last_message.chat.id, message_id=last_message.message_id)
+
+            await call.message.answer(
+                f"Ваш номер заброньований \nId Бронювання: <code>{booking_id}</code>",
+                parse_mode=ParseMode.HTML
+            )
             await self.main_menu(call.message, state)
