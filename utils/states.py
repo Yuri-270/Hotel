@@ -4,7 +4,8 @@ from aiogram.fsm.state import StatesGroup, State
 __all__ = [
     'RegistrationState',
     'MainState',
-    'SelectHotel'
+    'SelectHotel',
+    'UserCabinet'
 ]
 
 
@@ -31,3 +32,7 @@ class SelectHotel(StatesGroup):
     SET_DATE_OF_ARRIVAL = State()
     SET_DATE_OF_DEPARTURE = State()
     CONFIRM_RESERVATIONS = State()
+
+
+class UserCabinet(StatesGroup):
+    USER_CABINET_HANDLER = State()

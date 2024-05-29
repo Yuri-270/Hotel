@@ -1,9 +1,10 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from aiogram.enums import ParseMode
 
 from handlers.support import SupportClass
 from handlers.rent_a_room import RentARoom
-from utils.states import SelectHotel
+from utils.states import SelectHotel, UserCabinet
 from utils.data_base import DataBase
 
 
@@ -25,14 +26,11 @@ class MainHandler(SupportClass):
             case 'Орендувати кімнату 🏙':
                 await self.rent_a_room(message, state)
 
-            case 'Настройки ⚙️':
-                await self.settings(message, state)
+            case 'Переглянути історію 🗓':
+                await self.check_history(message, state)
 
             case 'Особистий кабінет 💼':
                 await self.user_cabinet(message, state)
-
-            case 'Переглянути історію 🗓':
-                await self.check_history(message, state)
 
             case _:
                 await message.answer("Виберіть з меню ⬇️")
@@ -94,11 +92,59 @@ class MainHandler(SupportClass):
             await state.update_data(CITY=message.text.capitalize())
             await self.rent_a_room(message, state)
 
-    async def settings(self, message: Message, state: FSMContext):
-        pass
-
     async def user_cabinet(self, message: Message, state: FSMContext):
-        pass
+        pool = await DataBase.get_pool()
+        async with pool.acquire() as con:
+            state_data = await state.get_data()
+            user_data = await con.fetchrow(
+                """SELECT first_name, second_name, birthday, email, 
+                telephone_number, passport_number, passport_valid_until
+                FROM users WHERE id = $1""",
+                state_data['USER_ID']
+            )
+
+            user_message = f"""Особистий кабінет 💼
+                
+Ім'я: <i>{user_data['first_name']}</i>
+Прізвище: <i>{user_data['second_name']}</i>
+День народження: <b><i>{user_data['birthday']}</i></b>
+
+Контакти
+Email: """
+
+            # Check email
+            if user_data['email'] is None:
+                user_message += "<b>Не указаний</b>"
+                have_email = False
+            else:
+                user_message += f"{user_data['email']}"
+                have_email = True
+
+            # Check phone number
+            user_message += "\nНомер телефона: "
+            if user_data['telephone_number'] is None:
+                user_message += "<b>Не указаний</b>"
+                have_phone_number = False
+            else:
+                user_message += f"{user_data['telephone_number']}"
+                have_phone_number = True
+
+            # Check passport data
+            user_message += "\nПаспортні дані "
+            if user_data['passport_number'] is None or user_data['passport_valid_until'] is None:
+                user_message += "не добавлені ❌"
+                have_passport_data = False
+            else:
+                user_message += "добавлені ✅"
+                have_passport_data = True
+
+            ikb = await self._user_cabinet_kb(have_email, have_phone_number, have_passport_data)
+            await message.answer(
+                user_message,
+                reply_markup=ikb,
+                parse_mode=ParseMode.HTML
+            )
+            await state.set_state(UserCabinet.USER_CABINET_HANDLER)
 
     async def check_history(self, message: Message, state: FSMContext):
         pass

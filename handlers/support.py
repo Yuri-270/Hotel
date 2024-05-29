@@ -158,6 +158,34 @@ class SupportClass:
         ikb = InlineKeyboardMarkup(inline_keyboard=buttons)
         return ikb
 
+    @staticmethod
+    async def _user_cabinet_kb(
+            have_email=True,
+            have_phone_number=True,
+            have_passport_data=True
+    ) -> InlineKeyboardMarkup:
+        buttons = list()
+        first_row_buttons = list()
+
+        # Button 'change email'
+        button_data = "Змінити email" if have_email else "Добавити email"
+        first_row_buttons.append(InBut(text=button_data, callback_data='change_email'))
+
+        # Button 'change phone number'
+        button_data = "Змінити номер телефону" if have_phone_number else "Добавити номер телефону"
+        first_row_buttons.append(InBut(text=button_data, callback_data='change_number'))
+
+        buttons.append(first_row_buttons)
+
+        # Buttons 'add passport data'
+        if have_passport_data is False:
+            buttons.append([InBut(text="Добавити паспортні дані", callback_data='add_passport_data')])
+
+        buttons.append([InBut(text="На головне меню", callback_data='in_main_menu')])
+
+        ikb = InlineKeyboardMarkup(inline_keyboard=buttons)
+        return ikb
+
     @classmethod
     async def delete_reply_kb(cls, message: Message, bot: Bot):
         message_data = await message.answer(
@@ -170,7 +198,7 @@ class SupportClass:
     async def main_menu_kb(user_id: int) -> ReplyKeyboardMarkup:
         buttons = [
             [KeyBut(text='Орендувати кімнату 🏙')],
-            [KeyBut(text='Настройки ⚙️'), KeyBut(text='Особистий кабінет 💼')]
+            [KeyBut(text='Особистий кабінет 💼')]
         ]
 
         pool = await DataBase.get_pool()
