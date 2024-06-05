@@ -1,10 +1,11 @@
-from aiogram.types import Message, CallbackQuery
+from aiogram import Bot
+from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
-from aiogram.enums import ParseMode
 
 from handlers.support import SupportClass
 from handlers.rent_a_room import RentARoom
-from utils.states import SelectHotel, UserCabinet
+from handlers.user_cabinet import UserCabinet
+from utils.states import SelectHotel
 from utils.data_base import DataBase
 
 
@@ -15,12 +16,13 @@ __all__ = [
 
 class MainHandler(SupportClass):
     rent_a_room_class = RentARoom()
+    user_cabinet_class = UserCabinet()
 
     def __init__(self):
         super().__init__()
         self._rent_a_room_kb()
 
-    async def main_handler(self, message: Message, state: FSMContext):
+    async def main_handler(self, message: Message, state: FSMContext, bot: Bot):
         match message.text:
 
             case 'Орендувати кімнату 🏙':
@@ -30,7 +32,7 @@ class MainHandler(SupportClass):
                 await self.check_history(message, state)
 
             case 'Особистий кабінет 💼':
-                await self.user_cabinet(message, state)
+                await self.user_cabinet_class.user_cabinet(message, state, bot)
 
             case _:
                 await message.answer("Виберіть з меню ⬇️")
@@ -91,60 +93,6 @@ class MainHandler(SupportClass):
             await message.answer(f"Вибрано місто <b>{message.text.capitalize()}</b>", parse_mode='HTML')
             await state.update_data(CITY=message.text.capitalize())
             await self.rent_a_room(message, state)
-
-    async def user_cabinet(self, message: Message, state: FSMContext):
-        pool = await DataBase.get_pool()
-        async with pool.acquire() as con:
-            state_data = await state.get_data()
-            user_data = await con.fetchrow(
-                """SELECT first_name, second_name, birthday, email, 
-                telephone_number, passport_number, passport_valid_until
-                FROM users WHERE id = $1""",
-                state_data['USER_ID']
-            )
-
-            user_message = f"""Особистий кабінет 💼
-                
-Ім'я: <i>{user_data['first_name']}</i>
-Прізвище: <i>{user_data['second_name']}</i>
-День народження: <b><i>{user_data['birthday']}</i></b>
-
-Контакти
-Email: """
-
-            # Check email
-            if user_data['email'] is None:
-                user_message += "<b>Не указаний</b>"
-                have_email = False
-            else:
-                user_message += f"{user_data['email']}"
-                have_email = True
-
-            # Check phone number
-            user_message += "\nНомер телефона: "
-            if user_data['telephone_number'] is None:
-                user_message += "<b>Не указаний</b>"
-                have_phone_number = False
-            else:
-                user_message += f"{user_data['telephone_number']}"
-                have_phone_number = True
-
-            # Check passport data
-            user_message += "\nПаспортні дані "
-            if user_data['passport_number'] is None or user_data['passport_valid_until'] is None:
-                user_message += "не добавлені ❌"
-                have_passport_data = False
-            else:
-                user_message += "добавлені ✅"
-                have_passport_data = True
-
-            ikb = await self._user_cabinet_kb(have_email, have_phone_number, have_passport_data)
-            await message.answer(
-                user_message,
-                reply_markup=ikb,
-                parse_mode=ParseMode.HTML
-            )
-            await state.set_state(UserCabinet.USER_CABINET_HANDLER)
 
     async def check_history(self, message: Message, state: FSMContext):
         pass

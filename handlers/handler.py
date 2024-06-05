@@ -21,7 +21,7 @@ async def command_start(message: Message, state: FSMContext):
 
 
 @router.message()
-async def state_commands(message: Message, state: FSMContext):
+async def state_commands(message: Message, state: FSMContext, bot: Bot):
     user_state = await state.get_state()
     match user_state:
 
@@ -33,7 +33,7 @@ async def state_commands(message: Message, state: FSMContext):
         case RegistrationState.INPUT_BIRTHDAY:
             await handlers.registration_handler_class.set_birthday(message, state)
         case RegistrationState.INPUT_EMAIL:
-            await handlers.registration_handler_class.set_email(message, state)
+            await handlers.registration_handler_class.set_email(message, state, bot)
         case RegistrationState.VERIFICATION_EMAIL:
             await handlers.registration_handler_class.check_verification_email_key(message, state)
         case RegistrationState.INPUT_TELEPHONE_NUMBER:
@@ -45,13 +45,19 @@ async def state_commands(message: Message, state: FSMContext):
 
         # Main handlers
         case MainState.MAIN_HANDLER:
-            await handlers.main_handler_class.main_handler(message, state)
+            await handlers.main_handler_class.main_handler(message, state, bot)
         case SelectHotel.GET_LOCATION:
             await handlers.main_handler_class.set_location(message, state)
         case SelectHotel.SET_DATE_OF_ARRIVAL:
             await handlers.rent_a_room_class.set_date_of_arrival(message, state)
         case SelectHotel.SET_DATE_OF_DEPARTURE:
             await handlers.rent_a_room_class.set_date_of_departure(message, state)
+
+        # User cabinet
+        case UserCabinetState.INPUT_EMAIL:
+            await handlers.user_cabinet_class.set_email(message, state, bot)
+        case UserCabinetState.CONFIRM_EMAIL:
+            await handlers.user_cabinet_class.confirm_email(message, state, bot)
 
         case _:
             await message.answer("Спочатку введіть /start")
@@ -70,5 +76,5 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
             await handlers.rent_a_room_class.rent_a_selected_room_handler(call, state, bot)
         case SelectHotel.CONFIRM_RESERVATIONS:
             await handlers.rent_a_room_class.confirm_payment(call, state, bot)
-        case UserCabinet.USER_CABINET_HANDLER:
+        case UserCabinetState.USER_CABINET_HANDLER:
             await handlers.user_cabinet_class.user_cabinet_handler(call, state)

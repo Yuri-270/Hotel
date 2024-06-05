@@ -13,6 +13,6 @@ __all__ = [
 
 
 registration_handler_class = RegistrationHandler()
+user_cabinet_class = UserCabinet()
 main_handler_class = MainHandler()
 rent_a_room_class = RentARoom()
-user_cabinet_class = UserCabinet()
