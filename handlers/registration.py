@@ -132,11 +132,12 @@ class RegistrationHandler(SupportClass):
         elif message.text.isnumeric() and len(message.text) == 6:
             is_verified = await VerifyingEmail.check_verifying_key(message, state)
             if is_verified:
+                kb = await self.get_phone_number_kb()
                 await message.answer(
                     """Ваш email верифікований
 Тепер потрібно щоб ви добавили свій номер телефону
 Це можна зробити потім""",
-                    reply_markup=self._skip_phone_number
+                    reply_markup=kb
                 )
                 await state.set_state(RegistrationState.INPUT_TELEPHONE_NUMBER)
 
@@ -156,7 +157,7 @@ class RegistrationHandler(SupportClass):
             if phone_number[0] == '+':
                 phone_number = phone_number[1:-1]
 
-            if phone_number.isnumeric():
+            if phone_number.isnumeric() and len(phone_number) <= 12:
                 state_data = await state.get_data()
                 pool = await DataBase.get_pool()
                 async with pool.acquire() as con:

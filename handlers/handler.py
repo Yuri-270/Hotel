@@ -58,6 +58,12 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
             await handlers.user_cabinet_class.set_email(message, state, bot)
         case UserCabinetState.CONFIRM_EMAIL:
             await handlers.user_cabinet_class.confirm_email(message, state, bot)
+        case UserCabinetState.INPUT_PHONE_NUMBER:
+            await handlers.user_cabinet_class.set_new_phone_number(message, state, bot)
+        case UserCabinetState.SET_PASSPORT_NUMBER:
+            await handlers.user_cabinet_class.passport_valid_until_menu(message, state, bot)
+        case UserCabinetState.SET_PASSPORT_VALID_UNTIL:
+            await handlers.user_cabinet_class.set_passport_valid_until(message, state, bot)
 
         case _:
             await message.answer("Спочатку введіть /start")
@@ -77,4 +83,6 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
         case SelectHotel.CONFIRM_RESERVATIONS:
             await handlers.rent_a_room_class.confirm_payment(call, state, bot)
         case UserCabinetState.USER_CABINET_HANDLER:
-            await handlers.user_cabinet_class.user_cabinet_handler(call, state)
+            await handlers.user_cabinet_class.user_cabinet_handler(call, state, bot)
+        case UserCabinetState.CONFIRM_PASSPORT_DATA:
+            await handlers.user_cabinet_class.passport_number_menu(call, state, bot)

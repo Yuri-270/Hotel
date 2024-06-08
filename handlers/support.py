@@ -26,6 +26,12 @@ class SupportClass:
             keyboard=[[KeyBut(text="Назад ⬅️")]],
             resize_keyboard=True
         )
+        self._confirm_data_ikb = InlineKeyboardMarkup(
+            inline_keyboard=[[
+                InBut(text='Да 👍', callback_data='yes'),
+                InBut(text='Нет 👎🏾', callback_data='no')
+            ]]
+        )
 
     def _registration_kb(self):
         self._skip_email = ReplyKeyboardMarkup(
@@ -37,17 +43,16 @@ class SupportClass:
             keyboard=[[KeyBut(text='Відправити ще раз 🔄'), KeyBut(text="Назад ⬅️")]],
             resize_keyboard=True
         )
-        self._skip_phone_number = ReplyKeyboardMarkup(
-            keyboard=[[KeyBut(text='Пропустити ⤴️')]],
+
+    @staticmethod
+    async def get_phone_number_kb(skip_mode=True) -> ReplyKeyboardMarkup:
+        text_button = "Пропустити ⤴️" if skip_mode else "Назад ⬅️"
+        kb = ReplyKeyboardMarkup(
+            keyboard=[[KeyBut(text=text_button)]],
             input_field_placeholder="+380",
             resize_keyboard=True
         )
-        self._confirm_data_ikb = InlineKeyboardMarkup(
-            inline_keyboard=[[
-                InBut(text='Да 👍', callback_data='yes'),
-                InBut(text='Нет 👎🏾', callback_data='no')
-            ]]
-        )
+        return kb
 
     @staticmethod
     async def _get_verification_email_kb(send_code_again=True) -> ReplyKeyboardMarkup:

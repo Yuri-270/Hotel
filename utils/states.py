@@ -38,3 +38,7 @@ class UserCabinetState(StatesGroup):
     USER_CABINET_HANDLER = State()
     INPUT_EMAIL = State()
     CONFIRM_EMAIL = State()
+    INPUT_PHONE_NUMBER = State()
+    CONFIRM_PASSPORT_DATA = State()
+    SET_PASSPORT_NUMBER = State()
+    SET_PASSPORT_VALID_UNTIL = State()
