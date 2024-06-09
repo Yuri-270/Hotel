@@ -169,7 +169,7 @@ class SupportClass:
                 [InBut(text="Замовити доп послугу", callback_data="order_a_service")],
                 [
                     InBut(text="Відмінити бронювання", callback_data="cancel_your_reservation"),
-                    InBut(text="Продлити бронювання", callback_data="extend_your_reservation")
+                    #InBut(text="Продлити бронювання", callback_data="extend_your_reservation")
                 ],
                 [InBut(text="На головне меню", callback_data="back")]
             ]
@@ -236,7 +236,10 @@ class SupportClass:
 
         pool = await DataBase.get_pool()
         async with pool.acquire() as con:
-            already_used = await con.fetchval("SELECT COUNT(user_id) FROM booking WHERE user_id = $1", user_id)
+            already_used = await con.fetchval(
+                "SELECT COUNT(user_id) FROM booking WHERE user_id = $1 AND date_of_departure < CURRENT_DATE",
+                user_id
+            )
 
         if already_used != 0:
             buttons.insert(1, [KeyBut(text='Переглянути історію 🗓')])

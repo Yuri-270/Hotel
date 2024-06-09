@@ -92,3 +92,5 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
             await handlers.view_room_class.view_menu_handler(call, state, bot)
         case ViewRoomState.SELECTED_SERVICE_HANDLER:
             await handlers.view_room_class.service_name_handler(call, state, bot)
+        case ViewRoomState.DELETE_BOOKING:
+            await handlers.view_room_class.delete_booking(call, state, bot)

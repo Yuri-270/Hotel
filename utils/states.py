@@ -38,6 +38,7 @@ class SelectHotel(StatesGroup):
 class ViewRoomState(StatesGroup):
     VIEW_ROOM_HANDLER = State()
     SELECTED_SERVICE_HANDLER = State()
+    DELETE_BOOKING = State()
 
 
 class UserCabinetState(StatesGroup):

@@ -35,6 +35,7 @@ class ViewRoom(SupportClass):
                 booking_data['room_id']
             )
             await state.update_data(HOTEL_ID=room_data['in_hotel'])
+            await state.update_data(BOOKING_ID=booking_data['booking_id'])
             hotel_data = await con.fetchrow(
                 """SELECT city, address, stars FROM hotels WHERE hotel_id = $1""",
                 room_data['in_hotel']
@@ -62,9 +63,9 @@ class ViewRoom(SupportClass):
         last_message = state_data['LAST_MESSAGE']
         await bot.delete_message(chat_id=last_message.chat.id, message_id=last_message.message_id)
 
-        pool = await DataBase.get_pool()
-        async with pool.acquire() as con:
-            if call.data == "order_a_service":
+        if call.data == "order_a_service":
+            pool = await DataBase.get_pool()
+            async with pool.acquire() as con:
                 unlocked_services_id = await con.fetch(
                     "SELECT service_id FROM additional_services_in_hotel WHERE hotel_id = $1",
                     state_data['HOTEL_ID']
@@ -73,36 +74,39 @@ class ViewRoom(SupportClass):
                     "SELECT * FROM additional_services"
                 )
 
-                unlocked_services_data = list()
-                for unlocked_service in unlocked_services_id:
-                    unlocked_services_data.append(all_services[unlocked_service[0]-1])
+            unlocked_services_data = list()
+            for unlocked_service in unlocked_services_id:
+                unlocked_services_data.append(all_services[unlocked_service[0]-1])
 
-                # Construct message
-                message_text = "ID | Назва | Ціна"
-                i = 1
-                for unlocked_service_data in unlocked_services_data:
-                    message_text += f"\n<b>{i}</b> | "
-                    message_text += f"{unlocked_service_data[1]} | "
-                    message_text += f"<b>{unlocked_service_data[2]}</b>"
-                    i += 1
+            # Construct message
+            message_text = "ID | Назва | Ціна"
+            i = 1
+            for unlocked_service_data in unlocked_services_data:
+                message_text += f"\n<b>{i}</b> | "
+                message_text += f"{unlocked_service_data[1]} | "
+                message_text += f"<b>{unlocked_service_data[2]}</b>"
+                i += 1
 
-                ikb = await self._get_service_kb(len(unlocked_services_data))
-                last_message = await call.message.answer(
-                    message_text,
-                    reply_markup=ikb,
-                    parse_mode=ParseMode.HTML
-                )
-                await state.update_data(LAST_MESSAGE=last_message)
-                await state.set_state(ViewRoomState.SELECTED_SERVICE_HANDLER)
+            ikb = await self._get_service_kb(len(unlocked_services_data))
+            last_message = await call.message.answer(
+                message_text,
+                reply_markup=ikb,
+                parse_mode=ParseMode.HTML
+            )
+            await state.set_state(ViewRoomState.SELECTED_SERVICE_HANDLER)
 
-            elif call.data == "cancel_your_reservation":
-                ...
+        elif call.data == "cancel_your_reservation":
+            last_message = await call.message.answer(
+                "Ви точно бажаєте відмінити бронювання",
+                reply_markup=self._confirm_data_ikb
+            )
+            await state.set_state(ViewRoomState.DELETE_BOOKING)
 
-            elif call.data == "extend_your_reservation":
-                ...
+        elif call.data == "back":
+            await self.main_menu(call.message, state)
+            return None
 
-            elif call.data == "back":
-                await self.main_menu(call.message, state)
+        await state.update_data(LAST_MESSAGE=last_message)
 
     async def service_name_handler(self, call: CallbackQuery, state: FSMContext, bot: Bot):
         state_data = await state.get_data()
@@ -123,10 +127,29 @@ class ViewRoom(SupportClass):
                 await con.fetch(
                     "INSERT INTO active_additional_services VALUES($1, $2)",
                     int(call.data)-1,
-                    state_data["HOTEL_ID"]
+                    state_data["BOOKING_ID"]
                 )
             await call.message.answer(
                 f"Послуга <i>{service_data[0]}</i> за <b>{service_data[1]}</b> замовлена",
                 parse_mode=ParseMode.HTML
             )
             await self.main_menu(call.message, state)
+
+    async def delete_booking(self, call: CallbackQuery, state: FSMContext, bot: Bot):
+        state_data = await state.get_data()
+        last_message = state_data['LAST_MESSAGE']
+        await bot.delete_message(chat_id=last_message.chat.id, message_id=last_message.message_id)
+
+        if call.data == "yes":
+            pool = await DataBase.get_pool()
+            async with pool.acquire() as con:
+                await con.fetch("DELETE FROM booking WHERE booking_id = $1", state_data['BOOKING_ID'])
+                await con.fetch(
+                    "DELETE FROM active_additional_services WHERE booking_id = $1",
+                    state_data['BOOKING_ID']
+                )
+            await call.message.answer("Ваше бронювання скасоване")
+            await self.main_menu(call.message, state)
+
+        elif call.data == 'no':
+            await self.check_booking(call.message, state, bot)
