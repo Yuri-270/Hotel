@@ -53,6 +53,8 @@ async def state_commands(message: Message, state: FSMContext, bot: Bot):
         case SelectHotel.SET_DATE_OF_DEPARTURE:
             await handlers.rent_a_room_class.set_date_of_departure(message, state)
 
+        # View room
+
         # User cabinet
         case UserCabinetState.INPUT_EMAIL:
             await handlers.user_cabinet_class.set_email(message, state, bot)
@@ -86,3 +88,7 @@ async def callback_handler(call: CallbackQuery, state: FSMContext, bot: Bot):
             await handlers.user_cabinet_class.user_cabinet_handler(call, state, bot)
         case UserCabinetState.CONFIRM_PASSPORT_DATA:
             await handlers.user_cabinet_class.passport_number_menu(call, state, bot)
+        case ViewRoomState.VIEW_ROOM_HANDLER:
+            await handlers.view_room_class.view_menu_handler(call, state, bot)
+        case ViewRoomState.SELECTED_SERVICE_HANDLER:
+            await handlers.view_room_class.service_name_handler(call, state, bot)

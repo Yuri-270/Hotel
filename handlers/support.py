@@ -163,6 +163,34 @@ class SupportClass:
         ikb = InlineKeyboardMarkup(inline_keyboard=buttons)
         return ikb
 
+    def _view_room_kbs(self):
+        self._view_room_kb = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InBut(text="Замовити доп послугу", callback_data="order_a_service")],
+                [
+                    InBut(text="Відмінити бронювання", callback_data="cancel_your_reservation"),
+                    InBut(text="Продлити бронювання", callback_data="extend_your_reservation")
+                ],
+                [InBut(text="На головне меню", callback_data="back")]
+            ]
+        )
+
+    @staticmethod
+    async def _get_service_kb(num_of_service: int) -> InlineKeyboardMarkup:
+        service_row = list()
+        i = 1
+        while i <= num_of_service:
+            service_row.append(InBut(text=str(i), callback_data=str(i)))
+            i += 1
+
+        buttons = [
+            service_row,
+            [InBut(text="На меню замовлення", callback_data="back")]
+        ]
+
+        ikb = InlineKeyboardMarkup(inline_keyboard=buttons)
+        return ikb
+
     @staticmethod
     async def _user_cabinet_kb(
             have_email=True,

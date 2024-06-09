@@ -5,6 +5,7 @@ __all__ = [
     'RegistrationState',
     'MainState',
     'SelectHotel',
+    'ViewRoomState',
     'UserCabinetState'
 ]
 
@@ -32,6 +33,11 @@ class SelectHotel(StatesGroup):
     SET_DATE_OF_ARRIVAL = State()
     SET_DATE_OF_DEPARTURE = State()
     CONFIRM_RESERVATIONS = State()
+
+
+class ViewRoomState(StatesGroup):
+    VIEW_ROOM_HANDLER = State()
+    SELECTED_SERVICE_HANDLER = State()
 
 
 class UserCabinetState(StatesGroup):

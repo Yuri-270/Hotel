@@ -5,6 +5,7 @@ from aiogram.fsm.context import FSMContext
 from handlers.support import SupportClass
 from handlers.rent_a_room import RentARoom
 from handlers.user_cabinet import UserCabinet
+from handlers.view_room import ViewRoom
 from utils.states import SelectHotel
 from utils.data_base import DataBase
 
@@ -17,6 +18,7 @@ __all__ = [
 class MainHandler(SupportClass):
     rent_a_room_class = RentARoom()
     user_cabinet_class = UserCabinet()
+    view_room_class = ViewRoom()
 
     def __init__(self):
         super().__init__()
@@ -29,7 +31,7 @@ class MainHandler(SupportClass):
                 await self.rent_a_room(message, state)
 
             case 'Переглянути історію 🗓':
-                await self.check_history(message, state)
+                await self.view_room_class.check_booking(message, state, bot)
 
             case 'Особистий кабінет 💼':
                 await self.user_cabinet_class.user_cabinet(message, state, bot)
@@ -93,6 +95,3 @@ class MainHandler(SupportClass):
             await message.answer(f"Вибрано місто <b>{message.text.capitalize()}</b>", parse_mode='HTML')
             await state.update_data(CITY=message.text.capitalize())
             await self.rent_a_room(message, state)
-
-    async def check_history(self, message: Message, state: FSMContext):
-        pass
